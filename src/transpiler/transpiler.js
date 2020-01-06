@@ -71,6 +71,59 @@ genPreDict['dot-op'] = (context, code) => {
     return false;
  };
 
+ genPreDict['pattern-match'] = (context, code) => { 
+    let cn = context.node;
+    code.addLine('( () => { let $ = (');
+    context.compiler({parentType: 'if-condition', node: cn.input, compiler:context.compiler}, code);
+    code.addLine('); \n');
+    if (Array.isArray(cn.cases)){
+        cn.cases.forEach( c => {
+            if (c.match.type === 'match-if-exp') {
+                code.addLine('{');
+                if (c.match.var !== null) {code.addLine(' let '+ c.match.var.value + ' = $; ')};
+                code.addLine(' if (');
+                context.compiler({parentType: 'if-exp-match', node: c.match.expMatch, compiler:context.compiler}, code);
+                code.addLine(') { return (');
+                context.compiler({parentType: 'if-exp-match-result', node: c.result, compiler:context.compiler}, code);
+                code.addLine(') } }\n');
+            }
+
+            if (c.match.type === 'match-regex') {
+                code.addLine('{ try {');
+                code.addLine(' let '+ c.match.var.value + ' = $.match(' + c.match.regex + '); ');
+                code.addLine(' if ('+ c.match.var.value + ' !==null) { return (');
+                context.compiler({parentType: 'if-exp-match-result', node: c.result, compiler:context.compiler}, code);
+                code.addLine(') } } catch {} }\n');
+            }
+
+            if (c.match.type === 'match-literal') {
+                code.addLine('{');
+                if (c.match.var !== null) {code.addLine(' let '+ c.match.var.value + ' = $; ')};
+                code.addLine(' if ( $ ===' + c.match.litMatch.value.value + ') { return (');
+                context.compiler({parentType: 'if-exp-match-result', node: c.result, compiler:context.compiler}, code);
+                code.addLine(') } }\n');
+            }
+
+            if (c.match.type === 'match-type') {
+                code.addLine('{');
+                if (c.match.var !== null) {code.addLine(' let '+ c.match.var.value + ' = $; ')};
+                code.addLine(' if ( typeof $ is ' + c.match.typeName.value.toLowerCase() + ') { return (');
+                context.compiler({parentType: 'if-exp-match-result', node: c.result, compiler:context.compiler}, code);
+                code.addLine(') } }\n');
+            }
+
+        });
+    };
+    if (cn.else !== null) {
+        code.addLine('return (');
+        context.compiler({parentType: 'if-else', node: cn.else, compiler:context.compiler}, code);
+        code.addLine(');');
+    }
+    code.addLine('} ) ()');
+    
+    return false;
+ };
+
  genPreDict['var-dec'] = (context, code) => { 
     let op = context.node;
     let decCode = getSubCode(code);
@@ -84,7 +137,10 @@ genPreDict['dot-op'] = (context, code) => {
  genPreDict['bin-op'] = (context, code) => { 
     let op = context.node;
     context.compiler({node: op.lhs, compiler:context.compiler}, code);
-    code.addLine(op.op.value);
+    if (op.op.value==='++') // double plus for string concat will be single + for javascript
+        code.addLine('+');
+    else
+        code.addLine(op.op.value);
     context.compiler({node: op.rhs, compiler:context.compiler}, code);
     return false;
  };

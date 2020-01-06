@@ -101,13 +101,15 @@ matcher         -> expression "match" %lbrace
                    {% (data) => ( { type:'pattern-match', 
                                          input: data[0], then: data[4],                        
                                          cases: data[3].map (c=>( { match: c[1], result:c[3]}) ),
-                                         else: (data[4])==null ? null : data[4].map (e=>( { matchElse : e[2]} )) } ) %}
+                                         else: (data[4])==null ? null : data[4][2] } ) %}
 
-matchcond      -> (%word ":"):? literal {% (data) => ( { type:'match-literal', var:data[0], litMatch:data[2] } ) %}
-                 | %word "if" expression {% (data) => ( { type:'match-if-exp', var:data[0], litMatch:data[2] } ) %}
-                 | %word "matches" %regex {% (data) => ( { type:'match-literal', var:data[0], regex:data[2] } ) %}
-                 | operand {% (data) => ( { type:'match-vlaue', valMatch:data[0] } ) %}
-                 | "is" %word {% (data) => ( { type:'match-type', typeName:data[1] } ) %}
+matchcond      -> (%word ":"):? literal {% (data) => ( { type:'match-literal', var:(data[0]==null) ? null : data[0][0],
+                        litMatch:data[1] } ) %}
+                 | %word "if" expression {% (data) => ( { type:'match-if-exp', var:data[0], expMatch:data[2] } ) %}
+                 | %word "matches" %regex {% (data) => ( { type:'match-regex', var:data[0], regex:data[2] } ) %}
+        #         | operand {% (data) => ( { type:'match-vlaue', valMatch:data[0] } ) %}
+                 | (%word):? "is" %word {% (data) => ( { type:'match-type',var:(data[0]==null) ? null : data[0][0],
+                        typeName:data[2] } ) %}
 
 result          -> result %mathbinop operand {% (data) => ( { type:'bin-op', lhs:data[0], op:data[1], rhs:data[2] } ) %}
                  | result %dotbinop operand {% (data) => ( { type:'dot-op', lhs:data[0], op:data[1], rhs:data[2] } ) %}

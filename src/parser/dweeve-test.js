@@ -44,20 +44,59 @@ var myNullExample = { someField : null }
 }
 `;
 
-const t5 = "n > 3"
+function text(inp)  {
+    let $ = inp;
+    {
+        let str = $
+        if (str === 'f') {return str + 'ff';}
+    }
+    {
+        let str = $
+        if (str === 'w') {return str + 'ff';}
+    }
+    {
+        try {
+        let thing = $.match(/[0-9]+x/)
+        if (thing !== null) {return thing[0] + ' x';}
+        } catch {}
+    }
+    {
+        if ((typeof $).toLowerCase() === 'Boolean'.toLowerCase()) return "blah";
+    }
+    return $
+}
 
+console.log(text('a'))
+console.log(text('w'))
+console.log(text('f'))
+console.log(text(true))
+console.log(text('12x'))
 const t4 =`
 {
     a: myInput.string match {
-      case str if str == "Mariano" -> str ++ " de Achaval"
       case str if str == "Emiliano" -> str ++ " Lesende"
+      case myVarOne if (myVar == "strings") -> ("strings" ++ "is myVar")
+      case word matches /(hello)\s\w+/ ->  word[1]  ++ " was matched"
     },
     b: myInput.number match {
-      case num if num == 3 -> "equal"
-      case num if num > 3 -> "greater than"
-      case num if num < 3 -> "less than"
+      case num is Boolean -> "could be true or false" ++ num
+      case is Object -> "we got an Object"
+      case "bob"  -> "is bob!"
+      case word: "bang" ->  word ++ " was matched"
     }
   }
+`;
+
+const t5= `
+%dw 2.0
+var myVar = "someString"
+output application/json
+---
+myVar match {
+    case myVarOne if (myVar == "some") -> ("some" ++ "is myVar")
+    case myVarOne if (myVar == "strings") -> ("strings" ++ "is myVar")
+    else -> myVar ++ " is myVar"
+}
 `;
 
 var key='test'
@@ -69,8 +108,7 @@ var ar2 = [ {this: 'that'}, {name: 'then'}];
 
 
 
-
-parser.feed(t4);
+parser.feed(t5);
 
 console.log("Interpreations found: " +parser.results.length);
 
