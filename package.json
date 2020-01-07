@@ -4,18 +4,21 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chai": "^4.2.0",
+    "chai-json": "^1.0.0",
     "dictionaryjs": "^1.0.9",
     "moo": "^0.5.1",
     "nearley": "^2.19.0",
     "source-map": "^0.7.3"
   },
   "devDependencies": {
+    "mocha": "^7.0.0",
     "pretty-js": "^0.2.1"
   }
 }

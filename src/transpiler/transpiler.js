@@ -176,7 +176,7 @@ function transpile(dweeve){
 function recursiveTranspile(context, code) {
     let n = context.node;
     if (n===undefined || n===null || n.type===undefined) return;
-    console.log("Type: "+n.type);
+//    console.log("Type: "+n.type);
     
     let goDeep = true;
 
@@ -184,11 +184,11 @@ function recursiveTranspile(context, code) {
     if (pre!==undefined) goDeep = pre(context, code)
 
     if (n.hasOwnProperty('text') && n.hasOwnProperty('value')) {
-        console.log("      - val: "+n['value']);
+ //       console.log("      - val: "+n['value']);
     } else if (goDeep) {
         for (var key in n) {
             if (key !=='type' && n.hasOwnProperty(key)) {
-                console.log("    - processing: "+key);
+ //               console.log("    - processing: "+key);
                 let v = n[key];
                 if (Array.isArray(v)) {
                     v.forEach(an => context.compiler({parentType: n.type, node: an, compiler:context.compiler}, code))

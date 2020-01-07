@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\src\\parser\\dweeve-test.js"
+            "program": "${workspaceFolder}\\tests\\lr-examples\\0-all-tests.js"
         }
     ]
 }
