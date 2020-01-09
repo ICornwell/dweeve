@@ -3,7 +3,7 @@ var chai = require('chai');
 var assert = chai.assert;
 
 describe('Set a default value', function() {
-    it('should transform example 1 to example result 1', function(done) {
+    it('simple default for undefined payload key', function(done) {
         let payload = {};
         let attributes = {};
         let vars = {};
@@ -22,10 +22,10 @@ describe('Set a default value', function() {
 
         let result = dweeve.run(dwl, payload, attributes, vars);
 
-        assert.deepEqual(result, JSON.parse(exptected_result), 'output does not match example');
+        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
         done();
     });
-    it('should transform example 2 to example result 2', function(done) {
+    it('simple default for null var object key value', function(done) {
         let payload = {};
         let attributes = {};
         let vars = {};
@@ -45,10 +45,10 @@ describe('Set a default value', function() {
 
         let result = dweeve.run(dwl, payload, attributes, vars);
 
-        assert.deepEqual(result, JSON.parse(exptected_result), 'output does not match example');
+        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
         done();
     });
-    it('should transform example 3 to example result 3', function(done) {
+    it('default value set from an "if" statement', function(done) {
         let payload = {};
         let attributes = {};
         let vars = {};
@@ -58,7 +58,7 @@ describe('Set a default value', function() {
         var myVar = (1 + 1)
         output application/json
         ---
-        if (myVar == 1) "value is odd"
+        if (isOdd(myVar)) "value is odd"
         else "value is even"
         `;
 
@@ -68,7 +68,7 @@ describe('Set a default value', function() {
 
         let result = dweeve.run(dwl, payload, attributes, vars);
 
-        assert.deepEqual(result, JSON.parse(exptected_result), 'output does not match example');
+        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
         done();
     });
 } )

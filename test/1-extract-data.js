@@ -3,7 +3,7 @@ var chai = require('chai');
 var assert = chai.assert;
 
 describe('Extract-Data', function() {
-    it('should transform example 1 to example result 1', function(done) {
+    it('extract named item from object and array vars', function(done) {
         let payload = {};
         let attributes = {};
         let vars = {};
@@ -29,11 +29,12 @@ describe('Extract-Data', function() {
 
         let result = dweeve.run(dwl, payload, attributes, vars);
 
-        assert.deepEqual(result, JSON.parse(exptected_result), 'output does not match example');
+        
+        assert.equal(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
         done();
     });
 
-    it('should transform example 2 to example result 2', function(done) {
+    it('extract value from var by key return in object with a key', function(done) {
         let payload = {};
         let attributes = {};
         let vars = {};
@@ -52,9 +53,180 @@ describe('Extract-Data', function() {
 
         let result = dweeve.run(dwl, payload, attributes, vars);
 
-        assert.deepEqual(result, JSON.parse(exptected_result), 'output does not match example');
+        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
         done();
     });
 
-    
+    it('extract value from values from xml', function(done) {
+        let payload = `
+        <users>
+            <user>Mariano</user>
+        </users>
+        `;
+        let attributes = {};
+        let vars = {};
+
+        let dwl = `
+        %dw 2.0
+        output application/json
+        ---
+        payload.users
+        `;
+
+        let exptected_result = `
+        {
+            "user": "Mariano"
+          }
+        `;
+
+        let result = dweeve.run(dwl, payload, attributes, vars);
+
+        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
+        done();
+    });
+
+    it('extract simple value from values from payload with .', function(done) {
+        let payload = { myObj : {
+            item1: "bob",
+            item2: "jim",
+            item3: "jane"
+        }};
+        let attributes = {};
+        let vars = {};
+
+        let dwl = `
+        %dw 2.0
+        output application/json
+        ---
+        payload.myObj.item2
+        `;
+
+        let exptected_result = `
+        "jim"
+        `;
+
+        let result = dweeve.run(dwl, payload, attributes, vars);
+
+        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
+        done();
+    });
+
+    it('extract simple value from values from payload array with .', function(done) {
+        let payload = { myObj :  [
+            { item1: "bob"},
+            { item2: "jim" },
+            { item3: "jane"}
+            ]
+        };
+        let attributes = {};
+        let vars = {};
+
+        let dwl = `
+        %dw 2.0
+        output application/json
+        ---
+        payload.myObj.item2
+        `;
+
+        let exptected_result = `
+        [ "jim" ]
+        `;
+
+        let result = dweeve.run(dwl, payload, attributes, vars);
+
+        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
+        done();
+    });
+
+    it('extract multiple values from values from payload array with .', function(done) {
+        let payload = { myObj :  [
+            { item1: "bob"},
+            { item2: "jim" },
+            { item1: "jane"}
+            ]
+        };
+        let attributes = {};
+        let vars = {};
+
+        let dwl = `
+        %dw 2.0
+        output application/json
+        ---
+        payload.myObj.item1
+        `;
+
+        let exptected_result = `
+        [ "bob", "jane" ]
+        `;
+
+        let result = dweeve.run(dwl, payload, attributes, vars);
+
+        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
+        done();
+    });
+
+    it('extract multiple objects from values from payload array with .', function(done) {
+        let payload = { };
+        let attributes = {};
+        let vars = {};
+
+        let dwl = `
+        %dw 2.0
+        var myData = {
+        "people": [
+            {
+            "person": {
+                "name": "Nial",
+                "address": {
+                "street": {
+                    "name": "Italia",
+                    "number": 2164
+                },
+                "area": {
+                    "zone": "San Isidro",
+                    "name": "Martinez"
+                }
+                }
+            }
+            },
+            {
+            "person": {
+                "name": "Coty",
+                "address": {
+                "street": {
+                    "name": "Monroe",
+                    "number": 323
+                },
+                "area": {
+                    "zone": "BA",
+                    "name": "Belgrano"
+                }
+                }
+            }
+            }
+        ]
+        }
+        output application/json
+        ---
+        myData.people.person.address.street
+        `;
+
+        let exptected_result = `
+        [
+            {
+              "name": "Italia",
+              "number": 2164
+            },
+            {
+              "name": "Monroe",
+              "number": 323
+            }
+          ]
+        `;
+
+        let result = dweeve.run(dwl, payload, attributes, vars);
+
+        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
+        done();
+    });
 } )

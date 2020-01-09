@@ -5,10 +5,20 @@ let genPreDict = new Dictionary.Dictionary();
 let genPostDict = new Dictionary.Dictionary();
 
 genPreDict['member-list'] = (context, code) => { 
-    code.addLine('{\n') ; 
-    context.node.members.forEach(m => {
-        context.compiler({parentType: 'obj-member', node: m, compiler:context.compiler}, code);
-    });
+    if (context.node.members.length > 1) {
+        code.addLine('{ "__extra-wrapped-list": true, \n') ; 
+        let idx=0;
+        context.node.members.forEach(m => {
+            code.addLine('"__key' + idx++ + '": {') ; 
+            context.compiler({parentType: 'obj-member', node: m, compiler:context.compiler}, code);
+            code.addLine('},\n ') ; 
+        });
+        code.addLine('}\n')
+    } else if (context.node.members.length === 1) {
+        code.addLine('{')
+        context.compiler({parentType: 'obj-member', node: context.node.members[0], compiler:context.compiler}, code);
+        code.addLine('}')
+    }
     return false; 
 };
 
@@ -33,13 +43,13 @@ genPreDict['default-expression'] = (context, code) => {
 
 // ( () => { try { return  key ;} catch { return 'bat'}; })()
 
-genPostDict['member-list'] = (context, code) => { code.addLine('}\n') };
+//genPostDict['member-list'] = (context, code) => { code.addLine('}\n') };
 
 genPostDict['key'] = (context, code) => { code.addLine(': ') };
 
-genPostDict['member'] = (context, code) => { code.addLine(',\n') };
+//genPostDict['member'] = (context, code) => { code.addLine(',\n') };
 
-genPreDict['word'] = (context, code) => { code.addLine(context.node.value) };
+genPreDict['word'] = (context, code) => { code.addLine(context.node.value ) };
 genPreDict['number'] = (context, code) => { code.addLine(context.node.value) };
 genPreDict['dblstring'] = (context, code) => { code.addLine(context.node.value) };
 genPreDict['sglstring'] = (context, code) => { code.addLine(context.node.value) };
@@ -145,6 +155,20 @@ genPreDict['dot-op'] = (context, code) => {
     return false;
  };
 
+ genPreDict['fun-call'] = (context, code) => { 
+    let op = context.node;
+    context.compiler({node: op.fun, compiler:context.compiler}, code);
+    code.addLine('(');
+    if (op.args!==null && Array.isArray(op.args.args)) {
+        op.args.args.forEach(arg => {
+            context.compiler({node: arg, compiler:context.compiler}, code);
+            code.addLine(', ');
+        });
+    }
+    code.addLine(')');
+    return false;
+ };
+
 function getSubCode(code)
 {
     let subCode = {text: '', lines: code.lines}
@@ -182,7 +206,7 @@ function recursiveTranspile(context, code) {
 
     let pre =genPreDict[n.type]
     if (pre!==undefined) goDeep = pre(context, code)
-
+    // if we have a token leaf node, do nothing, otherwise do some compiling!
     if (n.hasOwnProperty('text') && n.hasOwnProperty('value')) {
  //       console.log("      - val: "+n['value']);
     } else if (goDeep) {

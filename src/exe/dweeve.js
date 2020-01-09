@@ -1,47 +1,105 @@
 const nearley = require("nearley");
 const grammar = require("../parser/dweeve-grammar.js");
 const transpiler = require("../transpiler/transpiler.js");
-const prettyJs = require('pretty-js');
-const util = require('util');
+const beautify = require('./beautify.js');
 const vm = require('vm');
-
+const xml2js = require('./xmldom2jsobj')
+const DOMParser = require('xmldom').DOMParser;
+       
 
 function run(dwl, payload, vars, attributes) {
+ 
+    if (typeof payload === 'string' && payload.trim().startsWith('<') && payload.trim().endsWith('>')) {
+        var xml = payload.trim();
+        var doc = new DOMParser().parseFromString(xml);
+        payload = xml2js.toJsObj(doc);
+    }
+    let t = typeof payload;
+    let result = innerRun (dwl, payload , vars, attributes);
+    
+    return result;
+}
+
+function innerRun (dwl, payload, vars, attributes) {
+
     const args = {
         payload: payload,
         vars: vars,
         attributes:attributes,
-        __getMember:  __getMember
-      };
-      const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-      parser.feed(dwl.trim());
+        __getMember:  __getMember,
+        __getIdentifierValue: __getIdentifierValue,
+        isOdd: isOdd
+    };
+    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+    parser.feed(dwl.trim());
 
-    console.log("Interpreations found: " +parser.results.length);
+    if (parser.results.length === 0)
+    throw "Dweeve parser found no dweeve!"
+
+    if (parser.results.length > 1)
+    throw "Dweeve parser found more than one intepretation of the dweeve!"
 
     code = transpiler.transpile(parser.results[0]);
+     
+    const script = new vm.Script(code.decs + '\n' +code.text + '\n var result=weave(payload)');
+    
+    const context = new vm.createContext(args);
+    script.runInContext(context);
 
-//    console.log(prettyJs(code.decs));
-//    console.log(prettyJs(code.text));
-      
-      const script = 
-      new vm.Script(code.decs + '\n' +code.text + '\n var result=weave(payload)');
-      
-      const context = new vm.createContext(args);
-      script.runInContext(context);
+    let result = context.result
 
-      return context.result;
+    return beautify(result, null,2,100);
+}
+
+function __getIdentifierValue(identifier){
+    return identifier;
 }
 
 function __getMember(lhs, rhs) {
     try {
+        
         if ( !Array.isArray(lhs)) {
-            return lhs[rhs]; 
+            if (lhs['__extra-wrapped-list']){
+                let r = Object.values(lhs).filter(v=>(typeof v === 'object')).find(kvp=>kvp[rhs])[rhs]
+                return r;
+            } else {
+                let r = lhs[rhs]; 
+                console.log(r);
+                return r;
+            }
         } else {
-            return lhs.filter(m=>m[rhs]!==undefined).map(kvps=>kvps[rhs]);
+            let r = lhs.filter(m=>m['__extra-wrapped-list'] || m[rhs]!==undefined)
+                .map(kvps=> {
+                    if (kvps['__extra-wrapped-list']) {
+                        return Object.values(kvps).filter(v=>(typeof v === 'object')).find(kvp=>kvp[rhs])[rhs];
+                    } else {
+                        return kvps[rhs];
+                    }
+                });
+            return r;
+        }
+     } catch (ex) {
+         return null; 
+     } 
+}
+
+function __getArrayMember(lhs, rhs) {
+    try {
+        if ( !Array.isArray(lhs)) {
+            let r = lhs[rhs]; 
+            console.log(r);
+            return r;
+        } else {
+            let r = lhs.filter(m=>m[rhs]!==undefined).map(kvps=>kvps[rhs]);
+            return r;
         }
      } catch {
          return null; 
      } 
+}
+
+function isOdd(number) {
+    return number % 2 ? true: false;
 }
 
 module.exports = { run: run};
