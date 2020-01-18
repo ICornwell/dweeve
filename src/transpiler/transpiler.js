@@ -59,7 +59,20 @@ genPreDict['null'] = (context, code) => { code.addLine(context.node.value) };
 
 genPreDict['dot-op'] = (context, code) => { 
     let op = context.node;
-    code.addLine('( __getMember( (');
+    switch (op.op.type) {
+        case "dot":
+            code.addLine('( __doDotOp( (');
+            break;
+        case "dotstar":
+            code.addLine('( __doDotStarOp( (');
+            break;
+        case "dotdotstar":
+            code.addLine('( __doDotDotStarOp( (');
+            break;
+        case "dotdot":
+            code.addLine('( __doDotDotOp( (');
+            break;
+    }
     context.compiler({parentType: 'dot-op-lhs', node: context.node.lhs, compiler:context.compiler}, code);
     code.addLine('), (\'');
     context.compiler({parentType: 'dot-top-rhs', node: context.node.rhs, compiler:context.compiler}, code);

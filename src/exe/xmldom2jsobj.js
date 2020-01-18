@@ -32,9 +32,17 @@ function toJsObj(node){
     if (!hasText(node)) {
         return ({ [node.nodeName]: toJsObj(node.childNodes) });
     } else {
-        return ({ "__text": node.textContent, [node.nodeName]: toJsObj(node.childNodes) });
+        let inner = toJsObj(node.childNodes);
+        let ewl = { '__extra-wrapped-list' : true};
+        ewl["__key0"]= { "__text" : nodeOwnText(node) }; 
+        for (let idx=1;idx<=Object.values(inner).length;idx++)
+            if (Object.keys(inner)[idx-1].startsWith('__key'))
+                ewl['__key'+idx]=Object.values(inner)[idx-1]; 
+        
+            return { [node.nodeName]: ewl };
     }
 }
+
 
 
 
@@ -50,9 +58,19 @@ function hasText(node) {
     if (node.childNodes===undefined || node.childNodes===null || node.childNodes.length==0) return false;
     for (idx=0;idx<node.childNodes.length;idx++)
         if (node.childNodes.item(idx).constructor.name==="Text"
-            && !(node.childNodes.item(idx).textContent.match(/\s*/))) return true;
+            && !(/^\s*$/.test(node.childNodes.item(idx).textContent))) return true;
 
     return false;
+}
+
+function nodeOwnText(node) {
+    if (node.childNodes===undefined || node.childNodes===null || node.childNodes.length==0) return "";
+    for (idx=0;idx<node.childNodes.length;idx++)
+        if (node.childNodes.item(idx).constructor.name==="Text"
+            && !(/^\s*$/.test(node.childNodes.item(idx).textContent)))
+             return node.childNodes.item(idx).textContent;
+
+    return "";
 }
 
 function isTextOnlyElement(node){

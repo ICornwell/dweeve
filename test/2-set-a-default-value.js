@@ -1,6 +1,7 @@
 const dweeve = require("../src/exe/dweeve.js");
 var chai = require('chai');
 var assert = chai.assert;
+var dwassert = require('./dwassert');
 
 describe('Set a default value', function() {
     it('simple default for undefined payload key', function(done) {
@@ -22,7 +23,7 @@ describe('Set a default value', function() {
 
         let result = dweeve.run(dwl, payload, attributes, vars);
 
-        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
+        dwassert.equalwows(result, exptected_result, 'output does not match example')
         done();
     });
     it('simple default for null var object key value', function(done) {
@@ -45,7 +46,7 @@ describe('Set a default value', function() {
 
         let result = dweeve.run(dwl, payload, attributes, vars);
 
-        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
+        dwassert.equalwows(result, exptected_result, 'output does not match example')
         done();
     });
     it('default value set from an "if" statement', function(done) {
@@ -68,7 +69,7 @@ describe('Set a default value', function() {
 
         let result = dweeve.run(dwl, payload, attributes, vars);
 
-        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
+        dwassert.equalwows(result, exptected_result, 'output does not match example')
         done();
     });
 } )

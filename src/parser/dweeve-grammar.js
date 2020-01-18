@@ -18,9 +18,12 @@ const lexer = moo.compile({
             null: /null/,
             matchroute: /->/,
             fatarrow: /=>/,
-            mathbinop: /==|\+\+|<=|>=|\|\||&&|!=|[><\-+/*|&\^]/,
+            dotdotstarbinop: /\.\.\*/,
+            dotdotbinop: /\.\./,
+            dotstarbinop: /\.\*/,
             dotbinop: /[.]/,
             assignment: /=/,
+            mathbinop: /==|\+\+|<=|>=|\|\||&&|!=|[><\-+/*|&\^]/,
             dblstring:  { match : /["](?:\\["\\]|[^\n"\\])*["]/,},
             sglstring:  { match : /['](?:\\["\\]|[^\n"\\])*[']/,},
             keyvalsep: /:/,
@@ -108,7 +111,7 @@ var grammar = {
     {"name": "matchcond", "symbols": ["matchcond$ebnf$2", {"literal":"is"}, (lexer.has("word") ? {type: "word"} : word)], "postprocess":  (data) => ( { type:'match-type',var:(data[0]==null) ? null : data[0][0],
         typeName:data[2] } ) },
     {"name": "result", "symbols": ["result", (lexer.has("mathbinop") ? {type: "mathbinop"} : mathbinop), "operand"], "postprocess": (data) => ( { type:'bin-op', lhs:data[0], op:data[1], rhs:data[2] } )},
-    {"name": "result", "symbols": ["result", (lexer.has("dotbinop") ? {type: "dotbinop"} : dotbinop), "operand"], "postprocess": (data) => ( { type:'dot-op', lhs:data[0], op:data[1], rhs:data[2] } )},
+    {"name": "result", "symbols": ["result", "dotops", "operand"], "postprocess": (data) => ( { type:'dot-op', lhs:data[0], op:data[1], rhs:data[2] } )},
     {"name": "result", "symbols": ["operand"], "postprocess": (data) =>( { type:'some-operand', value: data[0] } )},
     {"name": "operand", "symbols": ["identifier"], "postprocess": (data) => ( { type:'identifier-operand', value: data[0] } )},
     {"name": "operand", "symbols": ["literal"], "postprocess": (data) => ( { type:'literal-operand', value: data[0] } )},
@@ -126,7 +129,11 @@ var grammar = {
     {"name": "literal", "symbols": [(lexer.has("dblstring") ? {type: "dblstring"} : dblstring)], "postprocess": (data) => ( { type:'literal', value: data[0] } )},
     {"name": "literal", "symbols": [(lexer.has("bool") ? {type: "bool"} : bool)], "postprocess": (data) => ( { type:'literal', value: data[0] } )},
     {"name": "literal", "symbols": [(lexer.has("null") ? {type: "null"} : null)], "postprocess": (data) => ( { type:'literal', value: data[0] } )},
-    {"name": "literal", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": (data) => ( { type:'literal', value: data[0] } )}
+    {"name": "literal", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": (data) => ( { type:'literal', value: data[0] } )},
+    {"name": "dotops", "symbols": [(lexer.has("dotbinop") ? {type: "dotbinop"} : dotbinop)], "postprocess": (data) => ( { type:'dot', value: data[0] } )},
+    {"name": "dotops", "symbols": [(lexer.has("dotstarbinop") ? {type: "dotstarbinop"} : dotstarbinop)], "postprocess": (data) => ( { type:'dotstar', value: data[0] } )},
+    {"name": "dotops", "symbols": [(lexer.has("dotdotstarbinop") ? {type: "dotdotstarbinop"} : dotdotstarbinop)], "postprocess": (data) => ( { type:'dotdotstar', value: data[0] } )},
+    {"name": "dotops", "symbols": [(lexer.has("dotdotbinop") ? {type: "dotdotbinop"} : dotdotbinop)], "postprocess": (data) => ( { type:'dotdot', value: data[0] } )}
 ]
   , ParserStart: "dweeve"
 }

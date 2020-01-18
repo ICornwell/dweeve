@@ -1,6 +1,7 @@
 const dweeve = require("../src/exe/dweeve.js");
 var chai = require('chai');
 var assert = chai.assert;
+var dwassert = require('./dwassert');
 
 describe('Extract-Data', function() {
     it('extract named item from object and array vars', function(done) {
@@ -29,8 +30,8 @@ describe('Extract-Data', function() {
 
         let result = dweeve.run(dwl, payload, attributes, vars);
 
-        
-        assert.equal(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
+        dwassert.equalwows(result, exptected_result, 'output does not match example')
+    //    assert.equal(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
         done();
     });
 
@@ -53,7 +54,7 @@ describe('Extract-Data', function() {
 
         let result = dweeve.run(dwl, payload, attributes, vars);
 
-        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
+        dwassert.equalwows(result, exptected_result, 'output does not match example')
         done();
     });
 
@@ -81,7 +82,7 @@ describe('Extract-Data', function() {
 
         let result = dweeve.run(dwl, payload, attributes, vars);
 
-        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
+        dwassert.equalwows(result, exptected_result, 'output does not match example')
         done();
     });
 
@@ -107,7 +108,7 @@ describe('Extract-Data', function() {
 
         let result = dweeve.run(dwl, payload, attributes, vars);
 
-        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
+        dwassert.equalwows(result, exptected_result, 'output does not match example')
         done();
     });
 
@@ -134,8 +135,8 @@ describe('Extract-Data', function() {
 
         let result = dweeve.run(dwl, payload, attributes, vars);
 
-        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
-        done();
+        dwassert.equalwows(result, exptected_result, 'output does not match example')
+       done();
     });
 
     it('extract multiple values from values from payload array with .', function(done) {
@@ -161,7 +162,7 @@ describe('Extract-Data', function() {
 
         let result = dweeve.run(dwl, payload, attributes, vars);
 
-        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
+        dwassert.equalwows(result, exptected_result, 'output does not match example')
         done();
     });
 
@@ -226,7 +227,226 @@ describe('Extract-Data', function() {
 
         let result = dweeve.run(dwl, payload, attributes, vars);
 
-        assert.deepEqual(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
+        dwassert.equalwows(result, exptected_result, 'output does not match example')
         done();
     });
+
+    it('extract from mixed cpntent Xml', function(done) {
+        let payload = `
+        <users>
+            <user someatttr= "boo">a<inner anAttr="bar">innertest</inner></user>
+            <user>b</user>
+            <user>c</user>
+        </users>
+        `;
+        let attributes = {};
+        let vars = {};
+
+        let dwl = `
+        %dw 2.0
+
+        output application/json
+        ---
+
+        payload.users
+        `;
+
+        let exptected_result = `
+        {
+            "user": {
+              "__text": "a",
+              "inner": "innertest"
+            },
+            "user": "b",
+            "user": "c"
+          }
+        `;
+
+        let result = dweeve.run(dwl, payload, attributes, vars);
+
+        dwassert.equalwows(result, exptected_result, 'output does not match example')
+        done();
+    });
+
+    it('extract from mixed content Xml, first value only with .', function(done) {
+        let payload = `
+        <users>
+            <user someatttr= "boo">a<inner anAttr="bar">innertest</inner></user>
+            <user>b</user>
+            <user>c</user>
+        </users>
+        `;
+        let attributes = {};
+        let vars = {};
+
+        let dwl = `
+        %dw 2.0
+
+        output application/json
+        ---
+
+        payload.users.user
+        `;
+
+        let exptected_result = `
+        {
+            "__text": "a",
+            "inner": "innertest"
+        }
+        `;
+
+        let result = dweeve.run(dwl, payload, attributes, vars);
+
+        dwassert.equalwows(result, exptected_result, 'output does not match example')
+        done();
+    });
+
+    it('extract from mixed content Xml, all values with .*', function(done) {
+        let payload = `
+        <users>
+            <user someatttr= "boo">b<inner anAttr="bar">innertest</inner></user>
+            <user>b</user>
+            <user>c</user>
+        </users>
+        `;
+        let attributes = {};
+        let vars = {};
+
+        let dwl = `
+        %dw 2.0
+
+        output application/json
+        ---
+
+        payload.users.*user
+        `;
+
+        let exptected_result = `
+        [
+            {
+              "__text": "b",
+              "inner": "innertest"
+            },
+            "b",
+            "c"
+          ]
+        `;
+
+        let result = dweeve.run(dwl, payload, attributes, vars);
+
+        dwassert.equalwows(result, exptected_result, 'output does not match example')
+        done();
+    });
+
+    it('extract from json (non-unique keys), all values with .*', function(done) {
+        
+        let attributes = {};
+        let vars = {};
+
+        let dwl = `
+        %dw 2.0
+
+        var payload = { "users" : {
+            "user": {"name":"a"},
+            "user": {"name":"b"},
+            "user": {"name":"c"}
+            }
+          }
+
+        output application/json
+        ---
+
+        payload.users.*user
+        `;
+
+        let exptected_result = `
+        [
+            {
+              "name": "a"
+            },
+            {
+              "name": "b"
+            },
+            {
+              "name": "c"
+            }
+          ]
+        `;
+
+        let result = dweeve.run(dwl, '', attributes, vars);
+
+        dwassert.equalwows(result, exptected_result, 'output does not match example')
+        done();
+    });
+
+    it('extract from json (array), all values with .*', function(done) {
+        
+        let attributes = {};
+        let vars = {};
+
+        let dwl = `
+        %dw 2.0
+
+        var payload = { "users" : [
+            { "user" : "a"},
+            { "user" : "b"},
+            { "user" : "c"}
+            ]
+            }
+
+        output application/json
+        ---
+
+        payload.users.*user
+        `;
+
+        let exptected_result = `
+        [
+            "a",
+            "b",
+            "c"
+          ]
+        `;
+
+        let result = dweeve.run(dwl, '', attributes, vars);
+
+        dwassert.equalwows(result, exptected_result, 'output does not match example')
+        done();
+    });
+
+    it('extract from json all values with ..*', function(done) {
+        
+        let attributes = {};
+        let vars = {};
+
+        let dwl = `
+        %dw 2.0
+
+        var payload = { "users" : {
+            "user": {"name":"a"},
+            "user": {"name":"b"},
+            "user": {"name":"c"}
+            }
+          }
+
+        output application/json
+        ---
+
+        payload.users..*name
+        `;
+
+        let exptected_result = `
+        [
+            "a",
+            "b",
+            "c"
+          ]
+        `;
+
+        let result = dweeve.run(dwl, '', attributes, vars);
+
+        dwassert.equalwows(result, exptected_result, 'output does not match example')
+        done();
+    });
+
 } )

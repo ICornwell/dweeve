@@ -123,7 +123,7 @@ const sandbox = {
     vars: { x:2, y:9 },
     attributes: { a1: 'a1', a2: 'a2'},
     xxx:87,
-    __getMember:  (lhs, rhs) => { try { if ( !Array.isArray(lhs)) {return lhs[rhs];} else {return lhs.find(m=>m[rhs]!==undefined)[rhs];} } catch { return null; } } 
+    __doDotOp:  (lhs, rhs) => { try { if ( !Array.isArray(lhs)) {return lhs[rhs];} else {return lhs.find(m=>m[rhs]!==undefined)[rhs];} } catch { return null; } } 
   };
 
   

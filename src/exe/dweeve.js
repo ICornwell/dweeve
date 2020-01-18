@@ -26,7 +26,10 @@ function innerRun (dwl, payload, vars, attributes) {
         payload: payload,
         vars: vars,
         attributes:attributes,
-        __getMember:  __getMember,
+        __doDotOp:  __doDotOp,
+        __doDotStarOp: __doDotStarOp,
+        __doDotDotStarOp: __doDotDotStarOp,
+        __doDotDotOp: __doDotDotOp,
         __getIdentifierValue: __getIdentifierValue,
         isOdd: isOdd
     };
@@ -55,7 +58,7 @@ function __getIdentifierValue(identifier){
     return identifier;
 }
 
-function __getMember(lhs, rhs) {
+function __doDotOp(lhs, rhs) {
     try {
         
         if ( !Array.isArray(lhs)) {
@@ -78,6 +81,90 @@ function __getMember(lhs, rhs) {
                 });
             return r;
         }
+     } catch (ex) {
+         return null; 
+     } 
+}
+
+function __doDotStarOp(lhs, rhs) {
+    if (!Array.isArray(lhs) && lhs['__extra-wrapped-list'] )
+        lhs = Object.values(lhs);
+    else if (!Array.isArray(lhs) && !lhs['__extra-wrapped-list'] ) {
+        arr= [];
+        for (let k in lhs)
+            arr.push({[k]:lhs[k]})
+        lhs = arr;
+    }
+    try {
+        let r = lhs.filter(m=>m[rhs]!==undefined)
+            .map(kvps=> kvps[rhs]);
+        return r;
+
+     } catch (ex) {
+         return null; 
+     } 
+}
+
+function __doDotDotStarOp(lhs,rhs) {
+    if (!Array.isArray(lhs) && lhs['__extra-wrapped-list'] )
+        lhs = Object.values(lhs);
+    else if (!Array.isArray(lhs) && !lhs['__extra-wrapped-list'] ) {
+        arr= [];
+        for (let k in lhs)
+            arr.push({[k]:lhs[k]})
+        lhs = arr;
+    }
+try {
+    let r = lhs.filter(m=>hasDescendentKey(m,rhs))
+        .flatMap(kvps=> getDescendentValues(kvps,rhs));
+    return r;
+
+ } catch (ex) {
+     return null; 
+ } 
+}
+
+function hasDescendentKey(obj, key){
+    if (typeof obj !== 'object') return false
+    for (let k in obj)
+        return k === key || hasDescendentKey(obj[k], key)
+}
+
+function getDescendentValues(obj, key){
+    let vs = []
+    if (typeof obj !== 'object') return []
+    for (let k in obj) {
+        if (k === key) 
+            vs.push(obj[k])
+        vs = vs.concat(getDescendentValues(obj[k], key))
+    }
+    return vs
+}
+
+function __doDotDotOp(lhs,rhs) {
+    
+}
+
+function _old__doDotStarOp(lhs, rhs) {
+    if (!Array.isArray(lhs) && lhs['__extra-wrapped-list'] )
+        lhs = Object.values(lhs);
+    else if (!Array.isArray(lhs) && !lhs['__extra-wrapped-list'] ) {
+        arr= [];
+        for (let k in lhs)
+            arr.push({[k]:lhs[k]})
+        lhs = arr;
+    }
+    try {
+        let r = lhs.filter(m=>m['__extra-wrapped-list'] || m[rhs]!==undefined)
+            .map(kvps=> {
+                if (kvps['__extra-wrapped-list']) {
+                    return Object.values(kvps).filter(v=>(typeof v === 'object')).find(kvp=>kvp[rhs])[rhs];
+                } else {
+                    return  kvps[rhs] ;
+                }
+            });
+        return r;
+
      } catch (ex) {
          return null; 
      } 

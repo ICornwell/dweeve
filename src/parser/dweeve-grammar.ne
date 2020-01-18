@@ -14,9 +14,12 @@ const lexer = moo.compile({
             null: /null/,
             matchroute: /->/,
             fatarrow: /=>/,
-            mathbinop: /==|\+\+|<=|>=|\|\||&&|!=|[><\-+/*|&\^]/,
+            dotdotstarbinop: /\.\.\*/,
+            dotdotbinop: /\.\./,
+            dotstarbinop: /\.\*/,
             dotbinop: /[.]/,
             assignment: /=/,
+            mathbinop: /==|\+\+|<=|>=|\|\||&&|!=|[><\-+/*|&\^]/,
             dblstring:  { match : /["](?:\\["\\]|[^\n"\\])*["]/,},
             sglstring:  { match : /['](?:\\["\\]|[^\n"\\])*[']/,},
             keyvalsep: /:/,
@@ -112,7 +115,7 @@ matchcond      -> (%word ":"):? literal {% (data) => ( { type:'match-literal', v
                         typeName:data[2] } ) %}
 
 result          -> result %mathbinop operand {% (data) => ( { type:'bin-op', lhs:data[0], op:data[1], rhs:data[2] } ) %}
-                 | result %dotbinop operand {% (data) => ( { type:'dot-op', lhs:data[0], op:data[1], rhs:data[2] } ) %}
+                 | result dotops operand {% (data) => ( { type:'dot-op', lhs:data[0], op:data[1], rhs:data[2] } ) %}
                  | operand {% (data) =>( { type:'some-operand', value: data[0] } ) %}
 
 
@@ -137,5 +140,9 @@ literal         ->  %sglstring  {% (data) => ( { type:'literal', value: data[0] 
                  |  %null       {% (data) => ( { type:'literal', value: data[0] } ) %}
                  |  %number     {% (data) => ( { type:'literal', value: data[0] } ) %}
                 
+dotops          -> %dotbinop        {% (data) => ( { type:'dot', value: data[0] } ) %}
+                 | %dotstarbinop    {% (data) => ( { type:'dotstar', value: data[0] } ) %}
+                 | %dotdotstarbinop    {% (data) => ( { type:'dotdotstar', value: data[0] } ) %}
+                 | %dotdotbinop    {% (data) => ( { type:'dotdot', value: data[0] } ) %}
 
 #ws              -> %WS:* {% (data) => null %}
