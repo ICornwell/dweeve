@@ -18,8 +18,8 @@ const lexer = moo.compile({
             dotdotbinop: /\.\./,
             dotstarbinop: /\.\*/,
             dotbinop: /[.]/,
-            assignment: /=/,
             mathbinop: /==|\+\+|<=|>=|\|\||&&|!=|[><\-+/*|&\^]/,
+            assignment: /=/,
             dblstring:  { match : /["](?:\\["\\]|[^\n"\\])*["]/,},
             sglstring:  { match : /['](?:\\["\\]|[^\n"\\])*[']/,},
             keyvalsep: /:/,
@@ -55,7 +55,7 @@ const lexer = moo.compile({
 
 dweeve          -> d_header:? d_body {% (data) => ( { type:'dweeve', header: data[0], body: data[1] } ) %}
 
-d_header        -> %header  h_declaration:* "---" {% (data) => ( { type:'dweeve', header: data[0], decs: data[1] } ) %}
+d_header        -> %header:?  h_declaration:* "---" {% (data) => ( { type:'dweeve', header: data[0], decs: data[1] } ) %}
 
 d_body          -> expression  {% (data) => ( { type:'body', value: data[0] } ) %}
             #     | object  {% (data) => ( { type:'body', value: data[0] } ) %}
@@ -63,13 +63,23 @@ d_body          -> expression  {% (data) => ( { type:'body', value: data[0] } ) 
 h_declaration   -> h_input_dec      {% (data) => (  { type:'head-dec', value: data[0] } ) %}
                  | h_output_dec     {% (data) => (  { type:'head-dec', value: data[0] } ) %}
                  | h_var_dec        {% (data) => (  { type:'head-dec', value: data[0] } ) %}
+                 | h_fun_dec        {% (data) => (  { type:'head-dec', value: data[0] } ) %}
 
 h_input_dec     -> "input" %mimetype {% (data) => ( { type: 'input-dec', mimetype: data[1]} ) %}
 
 
 h_output_dec    -> "output" %mimetype {% (data) => ( { type: 'output-dec', mimetype: data[1]} ) %}
 
-h_var_dec       -> "var" %word %assignment expression {% (data) => ( { type: 'var-dec', varName: data[1], varVal: data[3]} ) %}
+h_var_dec       -> "var" %word %assignment h_dec_expression {% (data) => ( { type: 'var-dec', varName: data[1], varVal: data[3]} ) %}
+
+h_fun_dec       -> "fun" %word %lparen %word:? (%comma %word):* %rparen %assignment h_dec_expression {% (data) => ( { 
+                        type:"fun-def", func:data[1], args: [data[3], ...(data[4].flat().filter(a=>a.type!=='comma') ) ],
+                        body: data[7]
+                        } )%}
+
+h_dec_expression -> expression {% (data) => ( { type:'expression', value: data[0] } ) %}
+
+                 | "do" %lbrace dweeve %rbrace {% (data) => ( { type: 'do-dweeve', dweeve: data[2]} ) %}
 
 object          -> %lbrace keyvaluepair (%comma keyvaluepair):* %rbrace {% (data) => ( { type:"member-list",
                            members: [data[1], ...(data[2].flat().filter(a=>a.type!=='comma') ) ] } ) %}
@@ -131,7 +141,7 @@ identifier      -> identifier %lparen arglist %rparen {% (data) => ( { type:'fun
 
 array           -> %lsquare arglist %rsquare {% (data) => ( { type:'array',  members:data[1] } ) %}
 
-arglist         -> expression ( %comma expression ):* {% (data) => ( { type:"arg-list",
+arglist         -> expression:? ( %comma expression ):* {% (data) => ( { type:"arg-list",
                            args: [data[0], ...(data[1].flat().filter(a=>a.type!=='comma') ) ] } ) %}
 
 literal         ->  %sglstring  {% (data) => ( { type:'literal', value: data[0] } ) %}

@@ -87,6 +87,12 @@ const t4 =`
   }
 `;
 
+
+
+let s= $ =>{ let num = $;  if ( typeof $ is boolean) { return ("could be true or false"+num) } }
+                              
+
+
 const t5= `
 %dw 2.0
 var myVar = "someString"

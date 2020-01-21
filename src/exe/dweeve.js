@@ -31,6 +31,7 @@ function innerRun (dwl, payload, vars, attributes) {
         __doDotDotStarOp: __doDotDotStarOp,
         __doDotDotOp: __doDotDotOp,
         __getIdentifierValue: __getIdentifierValue,
+        __execDoScope: __execDoScope,
         isOdd: isOdd
     };
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
@@ -44,7 +45,7 @@ function innerRun (dwl, payload, vars, attributes) {
 
     code = transpiler.transpile(parser.results[0]);
      
-    const script = new vm.Script(code.decs + '\n' +code.text + '\n var result=weave(payload)');
+    const script = new vm.Script(code.decs + '\n' +code.text + '\n var result=dweeve()');
     
     const context = new vm.createContext(args);
     script.runInContext(context);
@@ -52,6 +53,15 @@ function innerRun (dwl, payload, vars, attributes) {
     let result = context.result
 
     return beautify(result, null,2,100);
+}
+
+function __execDoScope(code, args) {
+    const script = new vm.Script(code + '\n var result=doScope()');
+    
+    const context = new vm.createContext(args);
+    script.runInContext(context);
+
+    return context.result
 }
 
 function __getIdentifierValue(identifier){
@@ -87,103 +97,90 @@ function __doDotOp(lhs, rhs) {
 }
 
 function __doDotStarOp(lhs, rhs) {
-    if (!Array.isArray(lhs) && lhs['__extra-wrapped-list'] )
-        lhs = Object.values(lhs);
-    else if (!Array.isArray(lhs) && !lhs['__extra-wrapped-list'] ) {
-        arr= [];
-        for (let k in lhs)
-            arr.push({[k]:lhs[k]})
-        lhs = arr;
-    }
+    lhs = convertJsonObjsToArray(lhs);
     try {
         let r = lhs.filter(m=>m[rhs]!==undefined)
             .map(kvps=> kvps[rhs]);
         return r;
-
      } catch (ex) {
          return null; 
      } 
 }
 
 function __doDotDotStarOp(lhs,rhs) {
-    if (!Array.isArray(lhs) && lhs['__extra-wrapped-list'] )
-        lhs = Object.values(lhs);
-    else if (!Array.isArray(lhs) && !lhs['__extra-wrapped-list'] ) {
-        arr= [];
-        for (let k in lhs)
-            arr.push({[k]:lhs[k]})
-        lhs = arr;
-    }
-try {
-    let r = lhs.filter(m=>hasDescendentKey(m,rhs))
-        .flatMap(kvps=> getDescendentValues(kvps,rhs));
-    return r;
-
- } catch (ex) {
-     return null; 
- } 
-}
-
-function hasDescendentKey(obj, key){
-    if (typeof obj !== 'object') return false
-    for (let k in obj)
-        return k === key || hasDescendentKey(obj[k], key)
+//    lhs = convertJsonObjsToArray(lhs);
+    try {
+        let r = getDescendentValues(lhs, rhs)
+        return r;
+    } catch (ex) {
+        return null; 
+    } 
 }
 
 function getDescendentValues(obj, key){
     let vs = []
     if (typeof obj !== 'object') return []
+    // two loops to go down before in, to match dataweave 2.0 ordering
     for (let k in obj) {
-        if (k === key) 
-            vs.push(obj[k])
-        vs = vs.concat(getDescendentValues(obj[k], key))
+        let kvp = dewrapKeyedObj(obj, k)
+        if (kvp.key === key) 
+            vs.push(kvp.val)
+    }
+    for (let k in obj) {
+        let kvp = dewrapKeyedObj(obj, k)
+        vs = vs.concat(getDescendentValues(kvp.val, key))
     }
     return vs
 }
 
 function __doDotDotOp(lhs,rhs) {
-    
+//    lhs = convertJsonObjsToArray(lhs);
+    try {
+        let r = getFirstDescendentValue(lhs, rhs)
+        return r;
+    } catch (ex) {
+        return null; 
+    }     
 }
 
-function _old__doDotStarOp(lhs, rhs) {
-    if (!Array.isArray(lhs) && lhs['__extra-wrapped-list'] )
+function getFirstDescendentValue(obj, key){
+    let vs = []
+    if (typeof obj !== 'object') return []
+    
+    for (let k in obj) {
+        let kvp = dewrapKeyedObj(obj, k)
+        if (kvp.key === key) {
+            vs.push(kvp.val)
+            break;
+        }
+    }
+    for (let k in obj) {
+        let kvp = dewrapKeyedObj(obj, k)
+        vs = vs.concat(getFirstDescendentValue(kvp.val, key))
+    }
+    return vs
+}
+
+function dewrapKeyedObj(obj, key) {
+    if (!key.startsWith('__key'))
+        return {key: key, val: obj[key]}
+    else
+        return {key : Object.keys(obj[key])[0], val:Object.values(obj[key])[0]}
+}
+
+function convertJsonObjsToArray(lhs) {
+    if (!Array.isArray(lhs) && lhs['__extra-wrapped-list'])
         lhs = Object.values(lhs);
-    else if (!Array.isArray(lhs) && !lhs['__extra-wrapped-list'] ) {
-        arr= [];
+    else if (!Array.isArray(lhs) && !lhs['__extra-wrapped-list']) {
+        arr = [];
         for (let k in lhs)
-            arr.push({[k]:lhs[k]})
+            arr.push({ [k]: lhs[k] });
         lhs = arr;
     }
-    try {
-        let r = lhs.filter(m=>m['__extra-wrapped-list'] || m[rhs]!==undefined)
-            .map(kvps=> {
-                if (kvps['__extra-wrapped-list']) {
-                    return Object.values(kvps).filter(v=>(typeof v === 'object')).find(kvp=>kvp[rhs])[rhs];
-                } else {
-                    return  kvps[rhs] ;
-                }
-            });
-        return r;
-
-     } catch (ex) {
-         return null; 
-     } 
+    return lhs;
 }
 
-function __getArrayMember(lhs, rhs) {
-    try {
-        if ( !Array.isArray(lhs)) {
-            let r = lhs[rhs]; 
-            console.log(r);
-            return r;
-        } else {
-            let r = lhs.filter(m=>m[rhs]!==undefined).map(kvps=>kvps[rhs]);
-            return r;
-        }
-     } catch {
-         return null; 
-     } 
-}
+
 
 function isOdd(number) {
     return number % 2 ? true: false;
