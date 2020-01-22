@@ -28,7 +28,7 @@ genPreDict['var-dec'] = (context, code) => {
                     decCode.addCode(', ');
             }
         });
-        }
+    }
     decCode.addCode(') { return ( \n');
     context.compiler({node: op.body, compiler:context.compiler, argList: op.args}, decCode);
     decCode.addCode(' ) }\n');

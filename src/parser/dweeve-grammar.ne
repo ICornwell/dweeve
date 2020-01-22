@@ -5,6 +5,7 @@ const moo = require("moo");
 
 const lexer = moo.compile({
             header: /^\%dw [0-9]+\.[0.9]+$/,
+            keyword: ['case', 'if', 'default', 'matches', 'match', 'var', 'fun', 'else', 'do'],
             WS:      { match: /[ \t\n]+/, lineBreaks: true },
             headerend : '---',
             comment: /\/\/.*?$/,
@@ -12,7 +13,7 @@ const lexer = moo.compile({
             regex: /\/(?![*+?])(?:[^\r\n\[/\\]|\\.|\[(?:[^\r\n\]\\]|\\.)*\])+\//,
             bool: /(?:true|false)/,
             null: /null/,
-            matchroute: /->/,
+            thinarrow: /->/,
             fatarrow: /=>/,
             dotdotstarbinop: /\.\.\*/,
             dotdotbinop: /\.\./,
@@ -109,7 +110,7 @@ ifconditional   -> "if" %lparen expression %rparen expression "else" expression
                                          else: data[6] } ) %}
 
 matcher         -> expression "match" %lbrace
-                   ("case" matchcond %matchroute expression):+
+                   ("case" matchcond %thinarrow expression):+
                    ("else" "->" expression):? %rbrace
                    {% (data) => ( { type:'pattern-match', 
                                          input: data[0], then: data[4],                        
@@ -138,6 +139,14 @@ identifier      -> identifier %lparen arglist %rparen {% (data) => ( { type:'fun
                  | identifier %lsquare expression %rsquare {% (data) => ( { type:'idx-identifier', ident: data[0], idx: data[2] } ) %}
 
                  | %word {% (data) => ( { type:'identifier', ident: data[0] } ) %}
+
+                 | %lparen %word:? (%comma %word):* %rparen %thinarrow expression
+                        {% (data) => ( { type:'lambda', ident: data[0],func:data[1], 
+                        args: [data[1], ...(data[2].flat().filter(a=>a.type!=='comma') ) ],
+                        expression: data[5] } ) %}
+
+                 | expression %word expression {% (data) => ( { type:'fun-call',  fun:data[1], 
+                    args: { args: [ data[0], data[2] ] } } ) %}
 
 array           -> %lsquare arglist %rsquare {% (data) => ( { type:'array',  members:data[1] } ) %}
 

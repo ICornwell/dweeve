@@ -32,7 +32,8 @@ function innerRun (dwl, payload, vars, attributes) {
         __doDotDotOp: __doDotDotOp,
         __getIdentifierValue: __getIdentifierValue,
         __execDoScope: __execDoScope,
-        isOdd: isOdd
+        isOdd: isOdd,
+        concat: concat
     };
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
     parser.feed(dwl.trim());
@@ -184,6 +185,10 @@ function convertJsonObjsToArray(lhs) {
 
 function isOdd(number) {
     return number % 2 ? true: false;
+}
+
+function concat(a,b) {
+    return a+b;
 }
 
 module.exports = { run: run};

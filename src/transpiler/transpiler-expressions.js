@@ -51,6 +51,33 @@ genPreDict['idx-identifier'] = (context, code) => {
     return false; 
 };
 
+genPreDict['lambda'] = (context, code) => { 
+    let lamda = context.node;
+   
+    code.addCode('(');
+    if (lamda.args!==null && Array.isArray(lamda.args)) {
+        idx=1;
+        lamda.args.forEach(arg => {
+            if (arg!==null) {
+                code.addCode(arg.value);
+                if (idx++<lamda.args.length)
+                    code.addCode(', ');
+            }
+        });
+    }
+    code.addCode(') => (');
+    context.compiler({parentType: 'lambda', node: lamda.expression, compiler:context.compiler}, code);
+    code.addCode(')\n');
+    return false; 
+};
+
+genPreDict['dynamic-key'] = (context, code) => { 
+    code.addCode('[');
+    context.compiler({parentType: 'dynamic-key', node: context.node.value, compiler:context.compiler}, code);
+    code.addCode(']: ');
+    return false;
+};
+
 // ( () => { try { return  key ;} catch { return 'bat'}; })()
 
 //genPostDict['member-list'] = (context, code) => { code.addCode('}\n') };

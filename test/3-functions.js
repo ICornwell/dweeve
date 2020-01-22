@@ -37,5 +37,83 @@ describe('Function definitions and calls', function() {
     done();
 });
 
+it('call "inbuilt" isOdd function', function(done) {
+        
+  payload = { field1: "Bob", field2: "Jones"}
+
+  let attributes = {};
+  let vars = {};
+
+  let dwl = `
+  %dw 2.0
+ 
+  ---
+  { "x" : isOdd(7) }
+  `;
+
+  let exptected_result = `
+  {
+    "x" : true
+  }
+  `;
+
+  let result = dweeve.run(dwl, payload, attributes, vars);
+
+  dwassert.equalwows(result, exptected_result, 'output does not match example')
+  done();
+});
+
+it('call "inbuilt" concat function', function(done) {
+        
+  payload = { field1: "Bob", field2: "Jones"}
+
+  let attributes = {};
+  let vars = {};
+
+  let dwl = `
+  %dw 2.0
+ 
+  ---
+  { "x" : concat("a", "b") }
+  `;
+
+  let exptected_result = `
+  {
+    "x" : "ab"
+  }
+  `;
+
+  let result = dweeve.run(dwl, payload, attributes, vars);
+
+  dwassert.equalwows(result, exptected_result, 'output does not match example')
+  done();
+});
+
+it('call "inbuilt" concat function with special 2 param shorthand syntax', function(done) {
+        
+  payload = { field1: "Bob", field2: "Jones"}
+
+  let attributes = {};
+  let vars = {};
+
+  let dwl = `
+  %dw 2.0
+ 
+  ---
+  { "x" : "a" concat "b" }
+  `;
+
+  let exptected_result = `
+  {
+    "x" : "ab"
+  }
+  `;
+
+  let result = dweeve.run(dwl, payload, attributes, vars);
+
+  dwassert.equalwows(result, exptected_result, 'output does not match example')
+  done();
+});
+
 }
 )
