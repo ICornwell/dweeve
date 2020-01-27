@@ -22,7 +22,7 @@ const lexer = moo.compile({
             mathbinop: /==|\+\+|<=|>=|\|\||&&|!=|[><\-+/*|&\^]/,
             assignment: /=/,
             dblstring:  { match : /["](?:\\["\\]|[^\n"\\])*["]/,},
-            sglstring:  { match : /['](?:\\["\\]|[^\n"\\])*[']/,},
+            sglstring:  { match : /['](?:\\['\\]|[^\n'\\])*[']/,},
             keyvalsep: /:/,
             comma: /,/,
             mimetype:  /(?:application|text)\/\w+/,
@@ -95,10 +95,24 @@ key             -> %word {% (data) => ( { type:'key', value: data[0] } ) %}
 
 expression      -> result {% (data) => ( { type:'expression', value: data[0] } ) %}
                  | object {% (data) => ( { type:'expression', value: data[0] } ) %}
-                 | array {% (data) => ( { type:'expression', value: data[0] } ) %}
                  | defaultexp {% (data) => ( { type:'expression', value: data[0] } ) %}
                  | ifconditional {% (data) => ( { type:'expression', value: data[0] } ) %}
                  | matcher {% (data) => ( { type:'expression', value: data[0] } ) %}
+
+                 
+
+                 | expression %word expression {% (data) => ( { type:'fun-call',  fun:data[1], 
+                    args: { args: [ data[0], data[2] ] } } ) %}
+
+                 | %lparen %word:? (%comma %word):* %rparen %thinarrow expression
+                        {% (data) => ( { type:'lambda', ident: data[0],func:data[1], 
+                        args: [data[1], ...(data[2].flat().filter(a=>a.type!=='comma') ) ],
+                        expression: data[5] } ) %}  
+                 
+                 | array {% (data) => ( { type:'expression', value: data[0] } ) %}
+                              
+
+
                  #| identifier {% (data) => ( { type:'expression', value: data[0] } ) %}
                  #| literal {% (data) => ( { type:'expression', value: data[0] } ) %}
                  
@@ -140,13 +154,7 @@ identifier      -> identifier %lparen arglist %rparen {% (data) => ( { type:'fun
 
                  | %word {% (data) => ( { type:'identifier', ident: data[0] } ) %}
 
-                 | %lparen %word:? (%comma %word):* %rparen %thinarrow expression
-                        {% (data) => ( { type:'lambda', ident: data[0],func:data[1], 
-                        args: [data[1], ...(data[2].flat().filter(a=>a.type!=='comma') ) ],
-                        expression: data[5] } ) %}
-
-                 | expression %word expression {% (data) => ( { type:'fun-call',  fun:data[1], 
-                    args: { args: [ data[0], data[2] ] } } ) %}
+                 
 
 array           -> %lsquare arglist %rsquare {% (data) => ( { type:'array',  members:data[1] } ) %}
 

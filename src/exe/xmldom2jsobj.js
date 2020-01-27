@@ -27,7 +27,7 @@ function toJsObj(node){
         return nl;
     }
     if (isTextOnlyElement(node)) {
-        return ( { [node.nodeName]: node.textContent } );
+        return ( { [node.nodeName]: numberIfPossible(node.textContent) } );
     }
     if (!hasText(node)) {
         return ({ [node.nodeName]: toJsObj(node.childNodes) });
@@ -43,7 +43,13 @@ function toJsObj(node){
     }
 }
 
+function numberIfPossible(text){
+    if (!isNaN(parseFloat(text))) return parseFloat(text);
+    if (text==='true') return true;
+    if (text==='false') return false;
 
+    return text
+}
 
 
 function getNodeType(node){
