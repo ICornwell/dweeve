@@ -1,9 +1,5 @@
 const xml2js = require('../src/exe/xmldom2jsobj')
 var chai = require('chai');
-var assert = chai.assert;
-var xpath = require('xpath')
-  , dom = require('xmldom').DOMParser
-const  xmlDom = require('xmldom')
 
 describe('XmltoJsObj', function() {
     it('simpleXml', function(done) {

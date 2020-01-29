@@ -1,6 +1,6 @@
 {
   "name": "dweeve",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,18 +10,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "chai": "^4.2.0",
-    "chai-json": "^1.0.0",
     "dictionaryjs": "^1.0.9",
     "moo": "^0.5.1",
     "nearley": "^2.19.0",
-    "source-map": "^0.7.3",
-    "xml2js": "^0.4.23",
-    "xmldom": "^0.2.1",
-    "xpath": "0.0.27"
+    "xmldom": "^0.2.1"
   },
   "devDependencies": {
     "mocha": "^7.0.0",
-    "pretty-js": "^0.2.1"
+    "pretty-js": "^0.2.1",
+    "chai": "^4.2.0",
+    "chai-json": "^1.0.0"
   }
 }

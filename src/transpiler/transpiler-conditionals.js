@@ -1,10 +1,9 @@
 const Dictionary = require('dictionaryjs');
-var sourceMap = require("source-map");
 
-let genPreDict = new Dictionary.Dictionary();
-let genPostDict = new Dictionary.Dictionary();
+let codeGenFor = new Dictionary.Dictionary();
+let codeGenAfter = new Dictionary.Dictionary();
 
-genPreDict['if-conditional'] = (context, code) => { 
+codeGenFor['if-conditional'] = (context, code) => { 
     let op = context.node;
     code.addCode('( () =>  { if (');
     context.compiler({parentType: 'if-conidtion', node: context.node.condition, compiler:context.compiler}, code);
@@ -17,7 +16,7 @@ genPreDict['if-conditional'] = (context, code) => {
     return false;
  };
 
- genPreDict['pattern-match'] = (context, code) => { 
+ codeGenFor['pattern-match'] = (context, code) => { 
     let cn = context.node;
     code.addCode('( () => { let $ = (');
     context.compiler({parentType: 'if-condition', node: cn.input, compiler:context.compiler}, code);
@@ -82,10 +81,10 @@ function emitcodeMatchIfExp(code, c, context) {
 }
 
 function addTranspilerFeatures(preDict, postDict) {
-    for (k in genPreDict)
-        preDict[k]=genPreDict[k];
-    for (k in genPostDict)
-        postDict[k]=genPostDict[k];    
+    for (k in codeGenFor)
+        preDict[k]=codeGenFor[k];
+    for (k in codeGenAfter)
+        postDict[k]=codeGenAfter[k];    
 }
 
 module.exports = {addTranspilerFeatures : addTranspilerFeatures}

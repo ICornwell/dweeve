@@ -1,10 +1,9 @@
 const Dictionary = require('dictionaryjs');
-var sourceMap = require("source-map");
 
-let genPreDict = new Dictionary.Dictionary();
-let genPostDict = new Dictionary.Dictionary();
+let codeGenFor = new Dictionary.Dictionary();
+let codeGenAfter = new Dictionary.Dictionary();
 
-genPreDict['member-list'] = (context, code) => { 
+codeGenFor['member-list'] = (context, code) => { 
     if (context.node.members.length > 1) {
         code.addCode('{ "__extra-wrapped-list": true, \n') ; 
         let idx=0;
@@ -22,7 +21,7 @@ genPreDict['member-list'] = (context, code) => {
     return false; 
 };
 
-genPreDict['array'] = (context, code) => { 
+codeGenFor['array'] = (context, code) => { 
     code.addCode('[') ; 
     context.node.members.args.forEach(m => {
         context.compiler({parentType: 'array-member', node: m, compiler:context.compiler}, code);
@@ -32,7 +31,7 @@ genPreDict['array'] = (context, code) => {
     return false; 
 };
 
-genPreDict['default-expression'] = (context, code) => { 
+codeGenFor['default-expression'] = (context, code) => { 
     code.addCode('( () => { let d = (');
     context.compiler({parentType: 'default-expression-default', node: context.node.default, compiler:context.compiler}, code);
     code.addCode('); try { let v = (') ; 
@@ -41,7 +40,7 @@ genPreDict['default-expression'] = (context, code) => {
     return false; 
 };
 
-genPreDict['idx-identifier'] = (context, code) => { 
+codeGenFor['idx-identifier'] = (context, code) => { 
     let id = context.node;
    
     code.addCode(id.ident.ident.value + '[');
@@ -51,7 +50,7 @@ genPreDict['idx-identifier'] = (context, code) => {
     return false; 
 };
 
-genPreDict['lambda'] = (context, code) => { 
+codeGenFor['lambda'] = (context, code) => { 
     let lamda = context.node;
    
     code.addCode('(');
@@ -71,7 +70,7 @@ genPreDict['lambda'] = (context, code) => {
     return false; 
 };
 
-genPreDict['dynamic-key'] = (context, code) => { 
+codeGenFor['dynamic-key'] = (context, code) => { 
     code.addCode('[');
     context.compiler({parentType: 'dynamic-key', node: context.node.value, compiler:context.compiler}, code);
     code.addCode(']: ');
@@ -80,26 +79,27 @@ genPreDict['dynamic-key'] = (context, code) => {
 
 // ( () => { try { return  key ;} catch { return 'bat'}; })()
 
-//genPostDict['member-list'] = (context, code) => { code.addCode('}\n') };
+//codeGenAfter['member-list'] = (context, code) => { code.addCode('}\n') };
 
-genPostDict['key'] = (context, code) => { code.addCode(': ') };
+codeGenAfter
+['key'] = (context, code) => { code.addCode(': ') };
 
-//genPostDict['member'] = (context, code) => { code.addCode(',\n') };
+//codeGenAfter['member'] = (context, code) => { code.addCode(',\n') };
 
-genPreDict['word'] = (context, code) => { code.addCode(context.node.value ) };
-genPreDict['number'] = (context, code) => { code.addCode(context.node.value) };
-genPreDict['dblstring'] = (context, code) => { code.addCode(context.node.value) };
-genPreDict['sglstring'] = (context, code) => { code.addCode(context.node.value) };
-genPreDict['bool'] = (context, code) => { code.addCode(context.node.value) };
-genPreDict['null'] = (context, code) => { code.addCode(context.node.value) };
+codeGenFor['word'] = (context, code) => { code.addCode(context.node.value ) };
+codeGenFor['number'] = (context, code) => { code.addCode(context.node.value) };
+codeGenFor['dblstring'] = (context, code) => { code.addCode(context.node.value) };
+codeGenFor['sglstring'] = (context, code) => { code.addCode(context.node.value) };
+codeGenFor['bool'] = (context, code) => { code.addCode(context.node.value) };
+codeGenFor['null'] = (context, code) => { code.addCode(context.node.value) };
 
 
 
 function addTranspilerFeatures(preDict, postDict) {
-    for (k in genPreDict)
-        preDict[k]=genPreDict[k];
-    for (k in genPostDict)
-        postDict[k]=genPostDict[k];    
+    for (k in codeGenFor)
+        preDict[k]=codeGenFor[k];
+    for (k in codeGenAfter)
+        postDict[k]=codeGenAfter[k];    
 }
 
 module.exports = {addTranspilerFeatures : addTranspilerFeatures}

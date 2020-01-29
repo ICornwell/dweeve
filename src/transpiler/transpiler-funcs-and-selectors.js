@@ -1,10 +1,9 @@
 const Dictionary = require('dictionaryjs');
-var sourceMap = require("source-map");
 
-let genPreDict = new Dictionary.Dictionary();
-let genPostDict = new Dictionary.Dictionary();
+let codeGenFor = new Dictionary.Dictionary();
+let codeGenAfter = new Dictionary.Dictionary();
 
-genPreDict['dot-op'] = (context, code) => { 
+codeGenFor['dot-op'] = (context, code) => { 
     let op = context.node;
     switch (op.op.type) {
         case "dot":
@@ -28,7 +27,7 @@ genPreDict['dot-op'] = (context, code) => {
     return false;
  };
 
- genPreDict['bin-op'] = (context, code) => { 
+ codeGenFor['bin-op'] = (context, code) => { 
     let op = context.node;
     context.compiler({node: op.lhs, compiler:context.compiler}, code);
     if (op.op.value==='++') // double plus for string concat will be single + for javascript
@@ -39,7 +38,7 @@ genPreDict['dot-op'] = (context, code) => {
     return false;
  };
 
- genPreDict['fun-call'] = (context, code) => { 
+ codeGenFor['fun-call'] = (context, code) => { 
     let op = context.node;
     context.compiler({node: op.fun, compiler:context.compiler}, code);
     code.addCode('(');
@@ -57,10 +56,10 @@ genPreDict['dot-op'] = (context, code) => {
 
 
 function addTranspilerFeatures(preDict, postDict) {
-    for (k in genPreDict)
-        preDict[k]=genPreDict[k];
-    for (k in genPostDict)
-        postDict[k]=genPostDict[k];    
+    for (k in codeGenFor)
+        preDict[k]=codeGenFor[k];
+    for (k in codeGenAfter)
+        postDict[k]=codeGenAfter[k];    
 }
 
 module.exports = {addTranspilerFeatures : addTranspilerFeatures}

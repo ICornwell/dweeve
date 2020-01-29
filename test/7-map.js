@@ -67,9 +67,9 @@ it('simple mapObject over an extra-wrapped-list', function(done) {
   output application/xml
   ---
   {
-      prices: payload.prices mapObject (value, key) -> ({
+      prices: payload.prices mapObject (value, key) -> {
           (key): (value + 5)
-      })
+      }
   }
    `;
 

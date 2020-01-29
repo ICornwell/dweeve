@@ -1,10 +1,9 @@
 const Dictionary = require('dictionaryjs');
-var sourceMap = require("source-map");
 
-let genPreDict = new Dictionary.Dictionary();
-let genPostDict = new Dictionary.Dictionary();
+let codeGenFor = new Dictionary.Dictionary();
+let codeGenAfter = new Dictionary.Dictionary();
 
-genPreDict['do-dweeve'] = (context, code) => { 
+codeGenFor['do-dweeve'] = (context, code) => { 
     let doDweeve = context.node;
     let doCode = getSubCode(code);
     let doId = '__do'+code.doScopes.length;
@@ -40,10 +39,10 @@ genPreDict['do-dweeve'] = (context, code) => {
 }
 
 function addTranspilerFeatures(preDict, postDict) {
-    for (k in genPreDict)
-        preDict[k]=genPreDict[k];
-    for (k in genPostDict)
-        postDict[k]=genPostDict[k];    
+    for (k in codeGenFor)
+        preDict[k]=codeGenFor[k];
+    for (k in codeGenAfter)
+        postDict[k]=codeGenAfter[k];    
 }
 
 module.exports = {addTranspilerFeatures : addTranspilerFeatures}

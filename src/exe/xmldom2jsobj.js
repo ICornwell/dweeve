@@ -1,7 +1,3 @@
-var xpath = require('xpath')
-  , dom = require('xmldom').DOMParser
-
-
 function toJsObj(node){
     let nodeType = getNodeType(node);
     console.log(nodeType);

@@ -4,16 +4,15 @@ const ConditionalsFeatures = require('./transpiler-conditionals')
 const FuncAndSelectorFeatures = require('./transpiler-funcs-and-selectors')
 const ExpressionFeatures = require('./transpiler-expressions')
 const DoScopeFeatures = require('./transpiler-do-scope')
-var sourceMap = require("source-map");
 
-let genPreDict = new Dictionary.Dictionary();
-let genPostDict = new Dictionary.Dictionary();
+let codeGenFor = new Dictionary.Dictionary();
+let codeGenAfter = new Dictionary.Dictionary();
 
-HeaderFeatures.addTranspilerFeatures(genPreDict, genPostDict);
-ConditionalsFeatures.addTranspilerFeatures(genPreDict, genPostDict);
-FuncAndSelectorFeatures.addTranspilerFeatures(genPreDict, genPostDict);
-ExpressionFeatures.addTranspilerFeatures(genPreDict, genPostDict);
-DoScopeFeatures.addTranspilerFeatures(genPreDict, genPostDict);
+HeaderFeatures.addTranspilerFeatures(codeGenFor, codeGenAfter);
+ConditionalsFeatures.addTranspilerFeatures(codeGenFor, codeGenAfter);
+FuncAndSelectorFeatures.addTranspilerFeatures(codeGenFor, codeGenAfter);
+ExpressionFeatures.addTranspilerFeatures(codeGenFor, codeGenAfter);
+DoScopeFeatures.addTranspilerFeatures(codeGenFor, codeGenAfter);
 
 
 function transpile(dweeve){
@@ -37,8 +36,8 @@ function recursiveTranspile(context, code) {
     
     let goDeep = true;
 
-    let pre =genPreDict[n.type]
-    if (pre!==undefined) goDeep = pre(context, code)
+    let codeGen =codeGenFor[n.type]
+    if (codeGen!==undefined) goDeep = codeGen(context, code)
     // if we have a token leaf node, do nothing, otherwise do some compiling!
     if (n.hasOwnProperty('text') && n.hasOwnProperty('value')) {
     } else if (goDeep) {
@@ -54,7 +53,7 @@ function recursiveTranspile(context, code) {
         }
     }
 
-    let post =genPostDict[n.type]
+    let post =codeGenAfter[n.type]
     if (post!==undefined) post(context, code)
 };
 
