@@ -17,3 +17,5 @@ What it isn't/doesn't:
 * d\~weeve doesn't have any ouput formats other than json, depsite having an xml output declaration
 
 d\~weeve uses nearley [https://nearley.js.org/](https://nearley.js.org/) for grammar and parsing
+
+There is a branch 'dweeve4browser' with some hacks and tweaks for running in the browser.
