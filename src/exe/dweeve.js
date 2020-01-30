@@ -48,7 +48,7 @@ function innerRun (dwl, payload, vars, attributes) {
     if (parser.results.length > 1)
     throw "Dweeve parser found more than one intepretation of the dweeve!"
 
-    code = transpiler.transpile(parser.results[0]);
+    const code = transpiler.transpile(parser.results[0]);
      
     const script = new vm.Script(code.decs + '\n' +code.text + '\n var result=dweeve()');
     

@@ -58,7 +58,7 @@ function getNodeType(node){
 
 function hasText(node) {
     if (node.childNodes===undefined || node.childNodes===null || node.childNodes.length==0) return false;
-    for (idx=0;idx<node.childNodes.length;idx++)
+    for (let idx=0;idx<node.childNodes.length;idx++)
         if (node.childNodes.item(idx).constructor.name==="Text"
             && !(/^\s*$/.test(node.childNodes.item(idx).textContent))) return true;
 
@@ -67,7 +67,7 @@ function hasText(node) {
 
 function nodeOwnText(node) {
     if (node.childNodes===undefined || node.childNodes===null || node.childNodes.length==0) return "";
-    for (idx=0;idx<node.childNodes.length;idx++)
+    for (let idx=0;idx<node.childNodes.length;idx++)
         if (node.childNodes.item(idx).constructor.name==="Text"
             && !(/^\s*$/.test(node.childNodes.item(idx).textContent)))
              return node.childNodes.item(idx).textContent;

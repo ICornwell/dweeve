@@ -43,7 +43,7 @@ codeGenFor['dot-op'] = (context, code) => {
     context.compiler({node: op.fun, compiler:context.compiler}, code);
     code.addCode('(');
     if (op.args!==null && Array.isArray(op.args.args)) {
-        idx=0;
+        let idx=0;
         op.args.args.forEach(arg => {
             context.compiler({node: arg, compiler:context.compiler}, code);
             if (++idx<op.args.args.length)

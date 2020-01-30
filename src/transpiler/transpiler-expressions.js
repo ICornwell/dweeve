@@ -55,7 +55,7 @@ codeGenFor['lambda'] = (context, code) => {
    
     code.addCode('(');
     if (lamda.args!==null && Array.isArray(lamda.args)) {
-        idx=1;
+        let idx=1;
         lamda.args.forEach(arg => {
             if (arg!==null) {
                 code.addCode(arg.value);

@@ -19,7 +19,7 @@ codeGenFor['var-dec'] = (context, code) => {
    
     decCode.addCode('\n function ' + op.func.value +'(');
     if (op.args!==null && Array.isArray(op.args)) {
-        idx=1;
+        let idx=1;
         op.args.forEach(arg => {
             if (arg!==null) {
                 decCode.addCode(arg.value);
