@@ -9,7 +9,7 @@ const lexer = moo.compile({
             WS:      { match: /[ \t\n]+/, lineBreaks: true },
             headerend : '---',
             comment: /\/\/.*?$/,
-            number:  /0|[1-9][0-9]*\.?[0-9]*/,
+            number:  /[\-]?(?:0|[1-9][0-9]*\.?[0-9]*)/,
             regex: /\/(?![*+?])(?:[^\r\n\[/\\]|\\.|\[(?:[^\r\n\]\\]|\\.)*\])+\//,
             bool: /(?:true|false)/,
             null: /null/,
@@ -166,6 +166,8 @@ literal         ->  %sglstring  {% (data) => ( { type:'literal', value: data[0] 
                  |  %bool       {% (data) => ( { type:'literal', value: data[0] } ) %}
                  |  %null       {% (data) => ( { type:'literal', value: data[0] } ) %}
                  |  %number     {% (data) => ( { type:'literal', value: data[0] } ) %}
+                 |  %number %number {% (data) => ( { type:'number', value: data[0]+data[1] } ) %}
+
                 
 dotops          -> %dotbinop        {% (data) => ( { type:'dot', value: data[0] } ) %}
                  | %dotstarbinop    {% (data) => ( { type:'dotstar', value: data[0] } ) %}

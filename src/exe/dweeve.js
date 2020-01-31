@@ -33,12 +33,12 @@ function innerRun (dwl, payload, vars, attributes) {
         __doDotDotStarOp: selectorFunctions.__doDotDotStarOp,
         __doDotDotOp: selectorFunctions.__doDotDotOp,
         __getIdentifierValue: selectorFunctions.__getIdentifierValue,
-        __execDoScope: doScopeFunctions.__execDoScope,
-        isOdd: coreFunctions.isOdd,
-        concat: coreFunctions.concat,
-        map: coreFunctions.map,
-        mapObject: coreFunctions.mapObject
+        __execDoScope: doScopeFunctions.__execDoScope
+    
     };
+
+    coreFunctions.addFunctions(args)
+
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
     parser.feed(dwl.trim());
 
