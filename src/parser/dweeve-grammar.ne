@@ -166,6 +166,7 @@ literal         ->  %sglstring  {% (data) => ( { type:'literal', value: data[0] 
                  |  %bool       {% (data) => ( { type:'literal', value: data[0] } ) %}
                  |  %null       {% (data) => ( { type:'literal', value: data[0] } ) %}
                  |  %number     {% (data) => ( { type:'literal', value: data[0] } ) %}
+                 |  %regex      {% (data) => ( { type:'literal', value: data[0] } ) %}
                  |  %number %number {% (data) => ( { type:'number', value: data[0]+data[1] } ) %}
 
                 

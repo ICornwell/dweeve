@@ -11,6 +11,10 @@ function addFunctions(context) {
     context['endsWith'] = endsWith
     context['filter'] = filter
     context['filterObject'] = filterObject
+    context['find'] = find
+    context['flatMap'] = flatMap
+    context['flatten'] = flatten
+    context['floor'] = floor
     context['startsWith'] = startsWith
     context['map'] = map
     context['mapObject'] = mapObject
@@ -130,6 +134,76 @@ function filterObject(source, criteria){
     }
 
     return out;
+}
+
+function find(arr, matcher){
+    if (Array.isArray(arr)){
+        let out = [];
+        let ewl = (arr['__extra-wrapped-list'])
+        let idx=0;
+        for(let key in arr) {
+            if (key!=='__extra-wrapped-list') {
+                let k = key
+                let v = arr[key]
+                if (ewl) {
+                    k = Object.keys(v)[0]
+                    v = Object.values(v)[0]
+                }
+
+                k = isNaN(parseInt(k)) ? k : parseInt(k)
+                if (String(v).match(matcher))
+                out.push(k);
+            }
+        }
+
+        return out;
+    } else if (matcher.source!==undefined) {
+        let str = String(arr)
+        let out = []
+        let gmatcher = new RegExp(matcher.source, 'g')
+        let ms = String(str).match(gmatcher)
+        let lastidx = 0
+        if (ms==null) return out
+        ms.forEach(m => {
+            let idx = str.indexOf(m, lastidx)
+            out.push([idx, idx + m.length ])
+            lastidx = idx+1
+        });
+        return out;
+    }  else  {
+        let str = String(arr)
+        let out = [];
+        let gmatcher = new RegExp(matcher, 'g')
+        let ms = String(str).match(gmatcher)
+        let lastidx = 0
+        ms.forEach(m => {
+            let idx = str.indexOf(m, lastidx)
+            out.push(idx)
+            lastidx = idx+1
+        });
+        return out;
+    }
+}
+
+function flatMap(source, mapFunc){
+    return flatten(map(source, mapFunc))
+}
+
+function flatten(source){
+    if (source==null || !Array.isArray(source)) return source
+    let out = []
+    source.forEach(m=> {
+        if (Array.isArray(m))
+            m.forEach(im=>
+                    out.push(im))
+        else
+            out.push(m)
+    })
+    return out;
+}
+
+function floor(num) {
+    return Math.floor(num);
 }
 
 function startsWith(s1,s2) {

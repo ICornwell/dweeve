@@ -157,6 +157,7 @@ var grammar = {
     {"name": "literal", "symbols": [(lexer.has("bool") ? {type: "bool"} : bool)], "postprocess": (data) => ( { type:'literal', value: data[0] } )},
     {"name": "literal", "symbols": [(lexer.has("null") ? {type: "null"} : null)], "postprocess": (data) => ( { type:'literal', value: data[0] } )},
     {"name": "literal", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": (data) => ( { type:'literal', value: data[0] } )},
+    {"name": "literal", "symbols": [(lexer.has("regex") ? {type: "regex"} : regex)], "postprocess": (data) => ( { type:'literal', value: data[0] } )},
     {"name": "literal", "symbols": [(lexer.has("number") ? {type: "number"} : number), (lexer.has("number") ? {type: "number"} : number)], "postprocess": (data) => ( { type:'number', value: data[0]+data[1] } )},
     {"name": "dotops", "symbols": [(lexer.has("dotbinop") ? {type: "dotbinop"} : dotbinop)], "postprocess": (data) => ( { type:'dot', value: data[0] } )},
     {"name": "dotops", "symbols": [(lexer.has("dotstarbinop") ? {type: "dotstarbinop"} : dotstarbinop)], "postprocess": (data) => ( { type:'dotstar', value: data[0] } )},

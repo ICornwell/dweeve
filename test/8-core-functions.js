@@ -26,7 +26,13 @@ var l=[-2,0,3,6,10, 8.7]
 	days : daysBetween('2016-10-01T23:57:59-03:00', '2017-10-01T23:57:59-03:00'),
 	distinct: [0, 1, 2, 3, 3, 2, 1, 4] distinctBy (value) -> { "unique" : value },
 	filter: [9,2,3,4,5] filter (value, index) -> (value > 2),
-	filterObj: {"a" : "apple", "b" : "banana"} filterObject ((value) -> value == "apple")
+  filterObj: {"a" : "apple", "b" : "banana"} filterObject ((value) -> value == "apple"),
+  finda: ["Bond", "James", "Bond"] find "Bond",
+  findb: "I heart DataWeave" find /\\w*ea\\w*(\\b)/,
+  findc: "aabccdbce" find "a",
+  flatmap: [ [3,5], [1.9,5.5] ] flatMap (value, index) -> value,
+  flatten: flatten([ [2.0, 0], [1,1], [2,3], [5,8] ]),
+  floor: [ floor(1.5), floor(2.2), floor(3) ]
 }
      `;
 
@@ -41,7 +47,14 @@ var l=[-2,0,3,6,10, 8.7]
       "days": 365,
       "distinct": [ 0, 1, 2, 3, 4 ],
       "filter": [ 9, 3, 4, 5 ],
-      "filterObj": { "a": "apple" }
+      "filterObj": { "a": "apple" },
+      "finda": [0,2],
+      "findb": [ [2,7], [8,17] ],
+      "findc" : [0,1],
+      "flatmap" : [ 3, 5, 1.9, 5.5],
+      "flatten" : [ 2, 0, 1, 1, 2, 3, 5, 8 ],
+      "floor": [ 1, 2, 3]
+
     }
     `;
 

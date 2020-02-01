@@ -92,7 +92,7 @@ codeGenFor['dblstring'] = (context, code) => { code.addCode(context.node.value) 
 codeGenFor['sglstring'] = (context, code) => { code.addCode(context.node.value) };
 codeGenFor['bool'] = (context, code) => { code.addCode(context.node.value) };
 codeGenFor['null'] = (context, code) => { code.addCode(context.node.value) };
-
+codeGenFor['regex'] = (context, code) => { code.addCode(context.node.value) };
 
 
 function addTranspilerFeatures(preDict, postDict) {
