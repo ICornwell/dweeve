@@ -12,7 +12,7 @@ What it isn't/doesn't:
 
 * d\~weeve is not a full implementation of Dataweave 2.0
 * d\~weeve is not for production / real use
-* d\~weeve doesn't do lots and lots of Dataweave functions (but they are easy to add)
+* d\~weeve doesn't do lots and lots of Dataweave functions (it as alphabetically all a-f, and map/mapObject) (but they are easy to add)
 * d\~weeve doesn't do type coercion (it's javascript so things are a little more flexible)
 * d\~weeve doesn't have any ouput formats other than json, depsite having an xml output declaration
 
