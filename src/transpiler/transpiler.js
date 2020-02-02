@@ -4,6 +4,7 @@ const ConditionalsFeatures = require('./transpiler-conditionals')
 const FuncAndSelectorFeatures = require('./transpiler-funcs-and-selectors')
 const ExpressionFeatures = require('./transpiler-expressions')
 const DoScopeFeatures = require('./transpiler-do-scope')
+const MathOpFeatures = require('./transpiler-math-op')
 
 let codeGenFor = new Dictionary.Dictionary();
 let codeGenAfter = new Dictionary.Dictionary();
@@ -13,6 +14,7 @@ ConditionalsFeatures.addTranspilerFeatures(codeGenFor, codeGenAfter);
 FuncAndSelectorFeatures.addTranspilerFeatures(codeGenFor, codeGenAfter);
 ExpressionFeatures.addTranspilerFeatures(codeGenFor, codeGenAfter);
 DoScopeFeatures.addTranspilerFeatures(codeGenFor, codeGenAfter);
+MathOpFeatures.addTranspilerFeatures(codeGenFor, codeGenAfter);
 
 
 function transpile(dweeve){

@@ -139,9 +139,52 @@ matchcond      -> (%word ":"):? literal {% (data) => ( { type:'match-literal', v
                  | (%word):? "is" %word {% (data) => ( { type:'match-type',var:(data[0]==null) ? null : data[0][0],
                         typeName:data[2] } ) %}
 
-result          -> result %mathbinop operand {% (data) => ( { type:'bin-op', lhs:data[0], op:data[1], rhs:data[2] } ) %}
+result          -> mathresult {% (data) => ( { type:'math-result', value:data[0].value } ) %}
                  | result dotops operand {% (data) => ( { type:'dot-op', lhs:data[0], op:data[1], rhs:data[2] } ) %}
-                 | operand {% (data) =>( { type:'some-operand', value: data[0] } ) %}
+#math                 | operand {% (data) =>( { type:'some-operand', value: data[0] } ) %}
+
+# operator precedence goes here!
+
+mathresult       -> l2ops                        {% (data) =>( { type:'operand', value : data[0].value } ) %}
+l1ops           -> l1ops l8operator l2ops        {% (data) =>( { type:'op', value: { lhs: data[0].value, op: data[1].value, rhs: data[2].value } } ) %}
+                 | l2ops                         {% (data) =>( { type:'operand', value : data[0].value } ) %}
+l2ops           -> l2ops l7operator l3ops        {% (data) =>( { type:'op', value: { lhs: data[0].value, op: data[1].value, rhs: data[2].value } } ) %}
+                 | l3ops                         {% (data) =>( { type:'operand', value : data[0].value } ) %}
+l3ops           -> l3ops l6operator l4ops        {% (data) =>( { type:'op', value: { lhs: data[0].value, op: data[1].value, rhs: data[2].value } } ) %}
+                 | l4ops                         {% (data) =>( { type:'operand', value : data[0].value } ) %}
+l4ops           -> l4ops l5operator l5ops        {% (data) =>( { type:'op', value: { lhs: data[0].value, op: data[1].value, rhs: data[2].value } } ) %}
+                 | l5ops                         {% (data) =>( { type:'operand', value : data[0].value } ) %}
+l5ops           -> l5ops l4operator l6ops        {% (data) =>( { type:'op', value: { lhs: data[0].value, op: data[1].value, rhs: data[2].value } } ) %}
+                 | l6ops                         {% (data) =>( { type:'operand', value : data[0].value } ) %}
+l6ops           -> l6ops l3operator l7ops        {% (data) =>( { type:'op', value: { lhs: data[0].value, op: data[1].value, rhs: data[2].value } } ) %}
+                 | l7ops                         {% (data) =>( { type:'operand', value : data[0].value } ) %}
+l7ops           -> l7ops l2operator operand        {% (data) =>( { type:'op', value: { lhs: data[0].value, op: data[1].value, rhs: data[2].value } } ) %}
+                 | operand                         {% (data) =>( { type:'operand', value : data[0].value } ) %}
+#l8ops           -> l8ops l1operator operand      {% (data) =>( { type:'op', value: { lhs: data[0].value, op: data[1].value, rhs: data[2].value } } ) %}
+#                 | operand                       {% (data) =>( { type:'operand', value : data[0].value } ) %}
+
+
+#l1operator      -> ".."     {% (data) =>( { type:'operator', value: data[0] } ) %}
+l2operator      -> "as"     {% (data) =>( { type:'operator', value: data[0] } ) %}
+l3operator      -> "*"      {% (data) =>( { type:'operator', value: data[0] } ) %}
+                 | "/"      {% (data) =>( { type:'operator', value: data[0] } ) %}
+l4operator      -> "+"      {% (data) =>( { type:'operator', value: data[0] } ) %}
+                 | "++"     {% (data) =>( { type:'operator', value: data[0] } ) %}
+                 | "-"      {% (data) =>( { type:'operator', value: data[0] } ) %}
+                 | ">>"     {% (data) =>( { type:'operator', value: data[0] } ) %}
+                 | "<<"     {% (data) =>( { type:'operator', value: data[0] } ) %}
+l5operator      -> ">"      {% (data) =>( { type:'operator', value: data[0] } ) %}
+                 |"="       {% (data) =>( { type:'operator', value: data[0] } ) %}
+                 |"<"       {% (data) =>( { type:'operator', value: data[0] } ) %}
+                 |">="      {% (data) =>( { type:'operator', value: data[0] } ) %}
+                 |"<="      {% (data) =>( { type:'operator', value: data[0] } ) %}
+                 |"is"      {% (data) =>( { type:'operator', value: data[0] } ) %}
+l6operator      -> "!="     {% (data) =>( { type:'operator', value: data[0] } ) %}
+                 |"~="      {% (data) =>( { type:'operator', value: data[0] } ) %}
+                 |"=="      {% (data) =>( { type:'operator', value: data[0] } ) %}
+l7operator      -> "and"    {% (data) =>( { type:'operator', value: data[0] } ) %}
+l8operator      -> "or"     {% (data) =>( { type:'operator', value: data[0] } ) %}
+
 
 
 operand         -> identifier {% (data) => ( { type:'identifier-operand', value: data[0] } ) %}
