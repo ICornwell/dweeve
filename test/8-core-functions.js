@@ -4,6 +4,43 @@ var assert = chai.assert;
 var dwassert = require('./dwassert');
 
 describe('Test core functions a-f function', function() {
+
+  it('core function filterObject ', function(done) {
+        
+    payload = ''
+
+    let attributes = {};
+    let vars = {};
+
+    let dwl = `
+    %dw 2.0
+output application/xml
+var l=[-2,0,3,6,10, 8.7]
+---
+{
+
+  filterObj: {"a" : "apple", "b" : "banana"} filterObject ((value) -> value == "apple")
+
+}
+     `;
+
+
+    let exptected_result = `
+    {
+
+      "filterObj": { "a": "apple" }
+
+
+    }
+    `;
+
+    let result = dweeve.run(dwl, payload, attributes, vars);
+
+    dwassert.equalwows(result, exptected_result, 'output does not match example')
+    done();
+});
+
+
   it('core function calls a - f', function(done) {
         
     payload = ''

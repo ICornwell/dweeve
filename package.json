@@ -13,6 +13,7 @@
     "dictionaryjs": "^1.0.9",
     "moo": "^0.5.1",
     "nearley": "^2.19.0",
+    "strip-comments": "^2.0.1",
     "xmldom": "^0.2.1"
   },
   "devDependencies": {

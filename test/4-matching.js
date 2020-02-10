@@ -10,7 +10,11 @@ describe('Test matching', function() {
 
     let attributes = {};
     let vars = {};
-
+    let dwl1 = `
+     myInput.string match {
+        case str if str == "Emiliano" -> str ++ " Lesende"
+     }
+     `;
     let dwl = `
     %dw 2.0
    

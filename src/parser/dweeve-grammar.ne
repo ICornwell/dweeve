@@ -9,7 +9,6 @@ const lexer = moo.compile({
             WS:      { match: /[ \t\n]+/, lineBreaks: true },
             headerend : '---',
             comment: /\/\/.*?$/,
-            number:  /[\-]?(?:0|[1-9][0-9]*\.?[0-9]*)/,
             regex: /\/(?![*+?])(?:[^\r\n\[/\\]|\\.|\[(?:[^\r\n\]\\]|\\.)*\])+\//,
             bool: /(?:true|false)/,
             null: /null/,
@@ -19,14 +18,15 @@ const lexer = moo.compile({
             dotdotbinop: /\.\./,
             dotstarbinop: /\.\*/,
             dotbinop: /[.]/,
-            mathbinop: /==|\+\+|<=|>=|\|\||&&|!=|[><\-+/*|&\^]/,
-            assignment: /=/,
+            mathbinop: /==|\+\+|<=|>=|\|\||&&|!=|[=><\-+/*|&\^]/,
+            
             dblstring:  { match : /["](?:\\["\\]|[^\n"\\])*["]/,},
             sglstring:  { match : /['](?:\\['\\]|[^\n'\\])*[']/,},
             keyvalsep: /:/,
             comma: /,/,
             mimetype:  /(?:application|text)\/\w+/,
-            word:  { match : /\w[\w0-9_]*/},
+            word:  { match : /[A-Za-z$][\w0-9_$]*/},
+            number:  /(?:0|[1-9][0-9]*\.?[0-9]*)/,
             lparen:  '(',
             rparen:  ')',
             lbrace:  '{',
@@ -71,9 +71,9 @@ h_input_dec     -> "input" %mimetype {% (data) => ( { type: 'input-dec', mimetyp
 
 h_output_dec    -> "output" %mimetype {% (data) => ( { type: 'output-dec', mimetype: data[1]} ) %}
 
-h_var_dec       -> "var" %word %assignment h_dec_expression {% (data) => ( { type: 'var-dec', varName: data[1], varVal: data[3]} ) %}
+h_var_dec       -> "var" %word "=" h_dec_expression {% (data) => ( { type: 'var-dec', varName: data[1], varVal: data[3]} ) %}
 
-h_fun_dec       -> "fun" %word %lparen %word:? (%comma %word):* %rparen %assignment h_dec_expression {% (data) => ( { 
+h_fun_dec       -> "fun" %word %lparen %word:? (%comma %word):* %rparen "=" h_dec_expression {% (data) => ( { 
                         type:"fun-def", func:data[1], args: [data[3], ...(data[4].flat().filter(a=>a.type!=='comma') ) ],
                         body: data[7]
                         } )%}
@@ -139,13 +139,16 @@ matchcond      -> (%word ":"):? literal {% (data) => ( { type:'match-literal', v
                  | (%word):? "is" %word {% (data) => ( { type:'match-type',var:(data[0]==null) ? null : data[0][0],
                         typeName:data[2] } ) %}
 
+
 result          -> mathresult {% (data) => ( { type:'math-result', value:data[0].value } ) %}
-                 | result dotops operand {% (data) => ( { type:'dot-op', lhs:data[0], op:data[1], rhs:data[2] } ) %}
+#                 | result dotops operand {% (data) => ( { type:'dot-op', lhs:data[0], op:data[1], rhs:data[2] } ) %}
 #math                 | operand {% (data) =>( { type:'some-operand', value: data[0] } ) %}
+
+
 
 # operator precedence goes here!
 
-mathresult       -> l2ops                        {% (data) =>( { type:'operand', value : data[0].value } ) %}
+mathresult       -> l1ops                        {% (data) =>( { type:'operand', value : data[0].value } ) %}
 l1ops           -> l1ops l8operator l2ops        {% (data) =>( { type:'op', value: { lhs: data[0].value, op: data[1].value, rhs: data[2].value } } ) %}
                  | l2ops                         {% (data) =>( { type:'operand', value : data[0].value } ) %}
 l2ops           -> l2ops l7operator l3ops        {% (data) =>( { type:'op', value: { lhs: data[0].value, op: data[1].value, rhs: data[2].value } } ) %}
@@ -158,13 +161,13 @@ l5ops           -> l5ops l4operator l6ops        {% (data) =>( { type:'op', valu
                  | l6ops                         {% (data) =>( { type:'operand', value : data[0].value } ) %}
 l6ops           -> l6ops l3operator l7ops        {% (data) =>( { type:'op', value: { lhs: data[0].value, op: data[1].value, rhs: data[2].value } } ) %}
                  | l7ops                         {% (data) =>( { type:'operand', value : data[0].value } ) %}
-l7ops           -> l7ops l2operator operand        {% (data) =>( { type:'op', value: { lhs: data[0].value, op: data[1].value, rhs: data[2].value } } ) %}
-                 | operand                         {% (data) =>( { type:'operand', value : data[0].value } ) %}
-#l8ops           -> l8ops l1operator operand      {% (data) =>( { type:'op', value: { lhs: data[0].value, op: data[1].value, rhs: data[2].value } } ) %}
-#                 | operand                       {% (data) =>( { type:'operand', value : data[0].value } ) %}
+l7ops           -> l7ops l2operator l8ops        {% (data) =>( { type:'op', value: { lhs: data[0].value, op: data[1].value, rhs: data[2].value } } ) %}
+                 | l8ops                         {% (data) =>( { type:'operand', value : data[0].value } ) %}
+l8ops           -> l8ops l1operator operand      {% (data) =>( { type:'dot-op', value: { lhs: data[0].value, op: data[1].value, rhs: data[2].value } } ) %}
+                 | operand                       {% (data) =>( { type:'operand', value : data[0].value } ) %}
 
 
-#l1operator      -> ".."     {% (data) =>( { type:'operator', value: data[0] } ) %}
+l1operator      -> dotops     {% (data) =>( { type:'dotop', value: data[0] } ) %}
 l2operator      -> "as"     {% (data) =>( { type:'operator', value: data[0] } ) %}
 l3operator      -> "*"      {% (data) =>( { type:'operator', value: data[0] } ) %}
                  | "/"      {% (data) =>( { type:'operator', value: data[0] } ) %}
@@ -190,6 +193,7 @@ l8operator      -> "or"     {% (data) =>( { type:'operator', value: data[0] } ) 
 operand         -> identifier {% (data) => ( { type:'identifier-operand', value: data[0] } ) %}
                  | literal {% (data) => ( { type:'literal-operand', value: data[0] } ) %}
                  | %lparen expression %rparen {% (data) => ( { type:'bracket-operand', value: data[1] } ) %}
+#                 | result {% (data) => ( { type:'result-operand', value: data[0] } ) %}
 
 identifier      -> identifier %lparen arglist %rparen {% (data) => ( { type:'fun-call',  fun:data[0], args:data[2] } ) %}
 
@@ -210,7 +214,7 @@ literal         ->  %sglstring  {% (data) => ( { type:'literal', value: data[0] 
                  |  %null       {% (data) => ( { type:'literal', value: data[0] } ) %}
                  |  %number     {% (data) => ( { type:'literal', value: data[0] } ) %}
                  |  %regex      {% (data) => ( { type:'literal', value: data[0] } ) %}
-                 |  %number %number {% (data) => ( { type:'number', value: data[0]+data[1] } ) %}
+                 |  "-" %number {% (data) => ( { type:'number', value: '-'+data[1] } ) %}
 
                 
 dotops          -> %dotbinop        {% (data) => ( { type:'dot', value: data[0] } ) %}

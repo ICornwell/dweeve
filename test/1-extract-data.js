@@ -17,7 +17,7 @@ describe('Extract-Data', function() {
         ---
         {
             selectingValueUsingKeyInObject : myObject.name,
-            selectingValueUsingKeyOfObjectInArray : myArray.name,
+            selectingValueUsingKeyOfObjectInArray : myArray.name
         }
         `;
 

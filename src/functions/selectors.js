@@ -1,3 +1,12 @@
+function addFunctions(context) {
+    context['__doDotOp']= __doDotOp
+    context['__doDotStarOp']= __doDotStarOp
+    context['__doDotDotStarOp']= __doDotDotStarOp
+    context['__doDotDotOp']= __doDotDotOp
+    context['__getIdentifierValue']= __getIdentifierValue
+    context['__flattenDynamicContent']= __flattenDynamicContent
+}
+
 function __getIdentifierValue(identifier){
     return identifier;
 }
@@ -102,6 +111,35 @@ function dewrapKeyedObj(obj, key) {
         return {key : Object.keys(obj[key])[0], val:Object.values(obj[key])[0]}
 }
 
+function __flattenDynamicContent(obj) {
+    if (!obj['__hasDynamicContent']) return obj
+    const newObj = { "__extra-wrapped-list" : true}
+    let idx = 0
+    Object.keys(obj).forEach(k => {
+        if (k.startsWith('__key')) {
+            newObj['__key'+idx++]=obj[k]
+        } else if (k.startsWith('__dkey')) {
+            if (Array.isArray(obj[k])) {
+                (obj[k]).forEach(m=> {
+                    newObj['__key'+idx++]=m
+                })
+            } else {
+                Object.keys(obj[k]).forEach(dk =>{
+                    if (dk.startsWith('__key')) {
+                        newObj['__key'+idx++]=obj[k][dk]
+                    } else {
+                        newObj['__key'+idx++]={ [dk]: obj[k][dk] }
+                    }
+                })
+            }
+        } else if (!k.startsWith('__')){
+            newObj['__key'+idx++] = { [k]: obj[k]}
+        }
+    })
+        
+    return newObj
+}
+
 function convertJsonObjsToArray(lhs) {
     if (!Array.isArray(lhs) && lhs['__extra-wrapped-list'])
         lhs = Object.values(lhs);
@@ -114,9 +152,4 @@ function convertJsonObjsToArray(lhs) {
     return lhs;
 }
 
-module.exports = {
-    __doDotOp:  __doDotOp,
-    __doDotStarOp: __doDotStarOp,
-    __doDotDotStarOp: __doDotDotStarOp,
-    __doDotDotOp: __doDotDotOp,
-    __getIdentifierValue: __getIdentifierValue}
+module.exports = { addFunctions: addFunctions }

@@ -18,6 +18,7 @@ function addFunctions(context) {
     context['startsWith'] = startsWith
     context['map'] = map
     context['mapObject'] = mapObject
+    context['readUrl'] = readUrl
 }
 
 function isOdd(number) {
@@ -251,4 +252,18 @@ function mapObject(source, mapFunc){
     return out;
 }
 
-module.exports = {addFunctions : addFunctions}
+function setResourceFileContent(name, text) {
+    resourceFileContent[name]=text
+}
+
+var resourceFileContent = {}
+
+function readUrl(path, contentType){
+    const content = resourceFileContent[path]
+    if (contentType==="application/json" || (content.trim().startsWith('{') && content.trim().endsWith('}')))
+        return JSON.parse(content)
+
+    return content
+}
+
+module.exports = { addFunctions: addFunctions, setResourceFileContent: setResourceFileContent}
