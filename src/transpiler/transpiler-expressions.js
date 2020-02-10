@@ -6,7 +6,7 @@ let codeGenAfter = new Dictionary.Dictionary();
 codeGenFor['member-list'] = (context, code) => { 
     if (context.node.members.length > 1 || 
         (context.node.members.length==1 && context.node.members[0].type=='bracket-operand')) {
-        code.addCode('__flattenDynamicContent({ "__extra-wrapped-list": true, \n') ; 
+        code.addCode('__flattenDynamicContent({ "__ukey-obj": true, \n') ; 
         let idx=0;
         let dynamicContent = false
         context.node.members.forEach(m => {
@@ -116,9 +116,9 @@ codeGenFor['regex'] = (context, code) => { code.addCode(context.node.value) };
 
 
 function addTranspilerFeatures(preDict, postDict) {
-    for (k in codeGenFor)
+    for (let k in codeGenFor)
         preDict[k]=codeGenFor[k];
-    for (k in codeGenAfter)
+    for (let k in codeGenAfter)
         postDict[k]=codeGenAfter[k];    
 }
 

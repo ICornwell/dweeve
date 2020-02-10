@@ -15,7 +15,7 @@ function __doDotOp(lhs, rhs) {
     try {
         
         if ( !Array.isArray(lhs)) {
-            if (lhs['__extra-wrapped-list']){
+            if (lhs['__ukey-obj']){
                 let r = Object.values(lhs).filter(v=>(typeof v === 'object')).find(kvp=>kvp[rhs])[rhs]
                 return r;
             } else {
@@ -24,9 +24,9 @@ function __doDotOp(lhs, rhs) {
                 return r;
             }
         } else {
-            let r = lhs.filter(m=>m['__extra-wrapped-list'] || m[rhs]!==undefined)
+            let r = lhs.filter(m=>m['__ukey-obj'] || m[rhs]!==undefined)
                 .map(kvps=> {
-                    if (kvps['__extra-wrapped-list']) {
+                    if (kvps['__ukey-obj']) {
                         return Object.values(kvps).filter(v=>(typeof v === 'object')).find(kvp=>kvp[rhs])[rhs];
                     } else {
                         return kvps[rhs];
@@ -113,7 +113,7 @@ function dewrapKeyedObj(obj, key) {
 
 function __flattenDynamicContent(obj) {
     if (!obj['__hasDynamicContent']) return obj
-    const newObj = { "__extra-wrapped-list" : true}
+    const newObj = { "__ukey-obj" : true}
     let idx = 0
     Object.keys(obj).forEach(k => {
         if (k.startsWith('__key')) {
@@ -141,9 +141,9 @@ function __flattenDynamicContent(obj) {
 }
 
 function convertJsonObjsToArray(lhs) {
-    if (!Array.isArray(lhs) && lhs['__extra-wrapped-list'])
+    if (!Array.isArray(lhs) && lhs['__ukey-obj'])
         lhs = Object.values(lhs);
-    else if (!Array.isArray(lhs) && !lhs['__extra-wrapped-list']) {
+    else if (!Array.isArray(lhs) && !lhs['__ukey-obj']) {
         arr = [];
         for (let k in lhs)
             arr.push({ [k]: lhs[k] });

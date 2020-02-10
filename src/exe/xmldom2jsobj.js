@@ -12,7 +12,7 @@ function toJsObj(node){
         return nl;
     }
     if (nodeType==='NodeList') {
-        let nl = { '__extra-wrapped-list' : true};
+        let nl = { '__ukey-obj' : true};
         for (let idx=0;idx<node.length;idx++){
             let ce = node.item(idx);
             if (getNodeType(ce)==='Element') {
@@ -29,7 +29,7 @@ function toJsObj(node){
         return ({ [node.nodeName]: toJsObj(node.childNodes) });
     } else {
         let inner = toJsObj(node.childNodes);
-        let ewl = { '__extra-wrapped-list' : true};
+        let ewl = { '__ukey-obj' : true};
         ewl["__key0"]= { "__text" : nodeOwnText(node) }; 
         for (let idx=1;idx<=Object.values(inner).length;idx++)
             if (Object.keys(inner)[idx-1].startsWith('__key'))

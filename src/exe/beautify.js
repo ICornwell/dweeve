@@ -150,7 +150,7 @@ function str(key, holder, limit) {
 // Otherwise, iterate through all of the keys in the object.
 
 //if it is one of dweeve'sspecial extra-wrapped-list, deal with that:
-            if (value['__extra-wrapped-list']) {
+            if (value['__ukey-obj']) {
                 for (k in value) {
                     if ( k.startsWith('__key')) {
                         let v2 = value[k];
