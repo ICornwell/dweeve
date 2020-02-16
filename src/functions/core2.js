@@ -9,6 +9,7 @@ function addFunctions(context) {
     context['isDate'] = isDate
     context['isDecimal'] = isDecimal
     context['isEmpty'] = isEmpty
+    context['isInteger'] = isInteger
     context['isLeapYear'] = isLeapYear
     context['log'] = log
     context['min'] = min
@@ -55,7 +56,7 @@ function isDate(value) {
 function isEmpty(v) {
     if (Array.isArray(v) && v.length==0) return true
     if (typeof v === 'object' && Object.keys(v).filter(k=>(!k.startsWith('__')  ))) return true
-    if (String(s).trim==='') return true
+    if (String(v).trim()==='') return true
 
     return false
 }
@@ -63,7 +64,7 @@ function isEmpty(v) {
 function isDecimal(num) {
     try {
         const v = parseFloat(num)
-        return true
+        return String(v)==num
     } catch {
         return false
     }
@@ -72,13 +73,17 @@ function isDecimal(num) {
 function isInteger(num) {
     try {
         const v = parseInt(num)
-        return true
+        return String(v)==num
     } catch {
         return false
     }
 }
 
-var isLeapYear = require('date-fns/isLeapYear')
+var __isLeapYear = require('date-fns/isLeapYear')
+
+function isLeapYear(date){
+    return __isLeapYear.default(date)
+}
 
 function log(message) {
     console.log(message)
@@ -123,7 +128,7 @@ function now() {
 }
 
 function joinBy(arr,s) {
-    return Array.join(arr, s)
+    return arr.join(s)
 }
 
 function groupBy(list, criteria) {

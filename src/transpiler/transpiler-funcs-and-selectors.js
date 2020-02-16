@@ -60,6 +60,7 @@ let codeGenAfter = new Dictionary.Dictionary();
  }
 
  function recurseGetAllIdentifiersUsedInExpression(expPart, identifiers){
+    if (expPart==null || expPart==undefined) return;
     if (expPart.type && expPart.type==='identifier') {
         identifiers.push(expPart.ident.value)
         return
