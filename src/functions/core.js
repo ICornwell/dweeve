@@ -8,6 +8,7 @@ function addFunctions(context) {
     context['contains'] = contains
     context['daysBetween'] = daysBetween
     context['distinctBy'] = distinctBy
+    context['distinctByKeys'] = distinctByKeys
     context['endsWith'] = endsWith
     context['filter'] = filter
     context['filterObject'] = filterObject
@@ -19,6 +20,7 @@ function addFunctions(context) {
     context['map'] = map
     context['mapObject'] = mapObject
     context['readUrl'] = readUrl
+    context['__add'] = __add
 }
 
 function isOdd(number) {
@@ -66,6 +68,8 @@ function daysBetween(d1, d2){
 }
 
 function distinctBy(items, criteria) {
+    if (items==null || items==undefined)
+        throw 'Error: trying to distinctBy on a null/undefined object/array'
     let out = []
     let distinctList =[]
     let ewl = (items['__ukey-obj'])
@@ -90,11 +94,40 @@ function distinctBy(items, criteria) {
     return out;
 }
 
+function distinctByKeys(items, criteria) {
+    if (items==null || items==undefined)
+        throw 'Error: trying to distinctBy on a null/undefined object/array'
+    let out = []
+    let distinctList =[]
+    let ewl = (items['__ukey-obj'])
+    for(let key in items) {
+        if (key!=='__ukey-obj') {
+            let k = key
+            let v = items[key]
+            if (ewl) {
+                k = Object.keys(v)[0]
+                v = Object.values(v)[0]
+            }
+
+            k = isNaN(parseInt(k)) ? k : parseInt(k)
+            let candidate = JSON.stringify(criteria(v,k))
+            if (!distinctList.includes(candidate)) {
+                distinctList.push(candidate)
+                out.push(criteria(v,k));
+            }
+        }
+    }
+
+    return out;
+}
+
 function endsWith(s1,s2) {
     return String(s1).endsWith(s2)
 }
 
 function filter(arr, criteria) {
+    if (arr==null || arr==undefined)
+        throw 'Error: trying to filter on a null/undefined object/array'
     let out = []
     let ewl = (arr['__ukey-obj'])
     for(let key in arr) {
@@ -107,8 +140,12 @@ function filter(arr, criteria) {
             }
 
             k = isNaN(parseInt(k)) ? k : parseInt(k)
+            try {
             if (criteria(v,k))
                 out.push(v);
+            } catch (err) {
+                // errors in filter evaluation will be treated as filter fails, rather than errors
+            }
         }
     }
 
@@ -116,6 +153,8 @@ function filter(arr, criteria) {
 }
 
 function filterObject(source, criteria){
+    if (source==null || source==undefined)
+        throw 'Error: trying to filterObject on a null/undefined object/array'
     let out = {'__ukey-obj': true};
     let ewl = (source['__ukey-obj'])
     let idx=0;
@@ -138,6 +177,8 @@ function filterObject(source, criteria){
 }
 
 function find(arr, matcher){
+    if (arr==null || arr==undefined)
+        throw 'Error: trying to find on a null/undefined object/array'
     if (Array.isArray(arr)){
         let out = [];
         let ewl = (arr['__ukey-obj'])
@@ -191,6 +232,8 @@ function flatMap(source, mapFunc){
 }
 
 function flatten(source){
+    if (source==null || source==undefined)
+        throw 'Error: trying to flatten on a null/undefined object/array'
     if (source==null || !Array.isArray(source)) return source
     let out = []
     source.forEach(m=> {
@@ -212,6 +255,8 @@ function startsWith(s1,s2) {
 }
 
 function map(source, mapFunc){
+    if (source==null || source==undefined)
+        throw 'Error: trying to map on a null/undefined object/array'
     let out = []
     let ewl = (source['__ukey-obj'])
     for(let key in source) {
@@ -232,6 +277,8 @@ function map(source, mapFunc){
 }
 
 function mapObject(source, mapFunc){
+    if (source==null || source==undefined)
+        throw 'Error: trying to mapObject on a null/undefined object/array'
     let out = {'__ukey-obj': true};
     let ewl = (source['__ukey-obj'])
     let idx=0;
@@ -264,6 +311,34 @@ function readUrl(path, contentType){
         return JSON.parse(content)
 
     return content
+}
+
+function __add(lhs, rhs) {
+    if (Array.isArray(lhs) && Array.isArray(rhs)) {
+        return lhs.concat(rhs)
+    } else if (typeof lhs === "object" && typeof rhs === "object") {
+        newObj = {'__ukey-obj' : true}
+        idx=0;
+        Object.keys(lhs).forEach(k=>{
+            if (k.startsWith('__key'))
+                newObj['__key'+idx++] = lhs[k]
+            else if (k.startsWith('__dkey'))
+                newObj['__dkey'+idx++] = lhs[k]
+            else if (!k.startsWith('__'))
+                newObj['__key'+idx++] = { [k]: lhs[k]}
+        })
+        Object.keys(rhs).forEach(k=>{
+            if (k.startsWith('__key'))
+                newObj['__key'+idx++] = rhs[k]
+            else if (k.startsWith('__dkey'))
+                newObj['__dkey'+idx++] = rhs[k]
+            else if (!k.startsWith('__'))
+                newObj['__key'+idx++] = { [k]: rhs[k]}
+        })
+        return newObj
+    } else {
+        return lhs + rhs
+    }
 }
 
 module.exports = { addFunctions: addFunctions, setResourceFileContent: setResourceFileContent}

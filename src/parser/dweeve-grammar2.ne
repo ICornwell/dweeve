@@ -82,12 +82,14 @@ h_dec_expression -> expression {% (data) => ( { type:'expression', value: data[0
 
                  | "do" %lbrace dweeve %rbrace {% (data) => ( { type: 'do-dweeve', dweeve: data[2]} ) %}
 
-object          -> %lbrace keyvaluepair (%comma keyvaluepair):* %rbrace {% (data) => ( { type:"member-list",
+object          -> %lbrace objectmember (%comma objectmember):* %rbrace {% (data) => ( { type:"member-list",
                            members: [data[1], ...(data[2].flat().filter(a=>a.type!=='comma') ) ] } ) %}
                  | %lbrace %rbrace  {% (data) => ( { type:"member-list", members: [] } ) %}
 
-keyvaluepair    -> key %keyvalsep expression %comma:? {% (data) => ( { type: 'member', key: data[0], value: data[2]} ) %}
+objectmember    -> keyvaluepair               {% (data) => ( { type: 'member', key: data[0].key, value: data[0].value} ) %}
                  | %lparen expression %rparen {% (data) => ( { type:'bracket-operand', value: data[1] } ) %}
+
+keyvaluepair    -> key %keyvalsep expression %comma:? {% (data) => ( { type: 'member', key: data[0], value: data[2]} ) %}
 
 key             -> %word {% (data) => ( { type:'key', value: data[0] } ) %}
                  | %sglstring {% (data) => ( { type:'key', value: data[0] } ) %}
@@ -96,30 +98,6 @@ key             -> %word {% (data) => ( { type:'key', value: data[0] } ) %}
 
 comment         -> %comment  {% (data) => ( { type:'commemt', value: data[0] } ) %}
 
-#expression      -> result {% (data) => ( { type:'expression', value: data[0] } ) %}
-#                 | object {% (data) => ( { type:'expression', value: data[0] } ) %}
-#                 | defaultexp {% (data) => ( { type:'expression', value: data[0] } ) %}
-#                 | ifconditional {% (data) => ( { type:'expression', value: data[0] } ) %}
-#                 | matcher {% (data) => ( { type:'expression', value: data[0] } ) %}
-
-                 
-
-#                 | expression %word expression {% (data) => ( { type:'fun-call',  fun:data[1], 
-#                    args: { args: [ data[0], data[2] ] } } ) %}
-
-#                 | %lparen %word:? (%comma %word):* %rparen %thinarrow expression
-#                        {% (data) => ( { type:'lambda', ident: data[0],func:data[1], 
-#                        args: [data[1], ...(data[2].flat().filter(a=>a.type!=='comma') ) ],
-#                        expression: data[5] } ) %}  
-                 
-#                 | array {% (data) => ( { type:'expression', value: data[0] } ) %}
-                              
-
-
-                 #| identifier {% (data) => ( { type:'expression', value: data[0] } ) %}
-                 #| literal {% (data) => ( { type:'expression', value: data[0] } ) %}
-                 
-# defaultexp      -> expression "default" expression  {% (data) => ( { type:'default-expression', value: data[0], default: data[2] } ) %}
 
 ifconditional   -> "if" %lparen expression %rparen expression "else" expression
                         {% (data) => ( { type:'if-conditional', 
@@ -142,10 +120,6 @@ matchcond      -> (%word ":"):? literal {% (data) => ( { type:'match-literal', v
                  | (%word):? "is" %word {% (data) => ( { type:'match-type',var:(data[0]==null) ? null : data[0][0],
                         typeName:data[2] } ) %}
 
-
-#result          -> mathresult {% (data) => ( { type:'math-result', value:data[0] } ) %}
-#                 | result dotops operand {% (data) => ( { type:'dot-op', lhs:data[0], op:data[1], rhs:data[2] } ) %}
-#math                 | operand {% (data) =>( { type:'some-operand', value: data[0] } ) %}
 
 expression       -> result        {% (data) => ( data[0] ) %} 
                  | ifconditional  {% (data) => ( data[0] ) %}
@@ -215,6 +189,7 @@ operand         -> identifier {% (data) => ( { type:'identifier-operand', value:
 
                  | %lparen expression %rparen {% (data) => ( { type:'bracket-operand', value: data[1] } ) %}
                  | object {% (data) => ( { type:'expression', value: data[0] } ) %}
+                 | keyvaluepair  {% (data) => ( { type:'kvp', value: data[0] } ) %}
 #                | defaultexp {% (data) => ( { type:'expression', value: data[0] } ) %}
 #                 | %lparen %word:? (%comma %word):* %rparen %thinarrow expression
 #                        {% (data) => ( { type:'lambda', value: { 

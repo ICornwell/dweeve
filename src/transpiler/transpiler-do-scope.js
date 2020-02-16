@@ -13,7 +13,7 @@ codeGenFor['do-dweeve'] = (context, code) => {
     context.compiler({node: doDweeve.dweeve, compiler:context.compiler}, doCode);
     doCode.addCode(')\n');
 
-    args=''
+    let args=''
     if (context.argList!==undefined && context.argList!=null) {
         context.argList.forEach(arg => {
             if (arg!==null)
@@ -39,9 +39,9 @@ codeGenFor['do-dweeve'] = (context, code) => {
 }
 
 function addTranspilerFeatures(preDict, postDict) {
-    for (k in codeGenFor)
+    for (let k in codeGenFor)
         preDict[k]=codeGenFor[k];
-    for (k in codeGenAfter)
+    for (let k in codeGenAfter)
         postDict[k]=codeGenAfter[k];    
 }
 

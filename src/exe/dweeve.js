@@ -8,10 +8,11 @@ const xml2js = require('./xmldom2jsobj')
 const DOMParser = require('xmldom').DOMParser;
 const selectorFunctions = require('../functions/selectors')
 const coreFunctions = require('../functions/core') 
+const coreFunctions2 = require('../functions/core2') 
 const doScopeFunctions = require('../functions/doScope')       
 
 function run(dwl, payload, vars, attributes) {
-//    try {
+    try {
         if (typeof payload === 'string' && payload.trim().startsWith('<') && payload.trim().endsWith('>')) {
             var xml = payload.trim();
             var doc = new DOMParser().parseFromString(xml);
@@ -24,10 +25,10 @@ function run(dwl, payload, vars, attributes) {
         let result = innerRun (dwl, payload , vars, attributes);
         
         return result;
- //   }
-  //  catch (err) {
- //       return "Error parsing input payload:"+err.message
- //   }
+    }
+    catch (err) {
+        return "Error parsing input payload:"+err.message
+    }
 }
 
 function innerRun (dwl, payload, vars, attributes) {
@@ -42,12 +43,13 @@ function innerRun (dwl, payload, vars, attributes) {
         return beautify(result, null,2,100);
     }
     catch (err) {
-        return err.message;
+        return err.message ? err.message : err;
     }
 }
 
 function runDweeveScript(dwl, args) {
     coreFunctions.addFunctions(args)
+    coreFunctions2.addFunctions(args)
     doScopeFunctions.addFunctions(args)
     selectorFunctions.addFunctions(args)
 
@@ -57,7 +59,7 @@ function runDweeveScript(dwl, args) {
     parser.feed(dwl.trim());
 
     if (parser.results.length === 0)
-        throw "Dweeve parser found no dweeve!"
+        throw "Dweeve parser found no (or somehow incomplete) dweeve!"
     if (parser.results.length > 1)
         throw "Dweeve parser found more than one intepretation of the dweeve!"
 

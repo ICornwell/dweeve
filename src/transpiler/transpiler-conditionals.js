@@ -81,9 +81,9 @@ function emitcodeMatchIfExp(code, c, context) {
 }
 
 function addTranspilerFeatures(preDict, postDict) {
-    for (k in codeGenFor)
+    for (let k in codeGenFor)
         preDict[k]=codeGenFor[k];
-    for (k in codeGenAfter)
+    for (let k in codeGenAfter)
         postDict[k]=codeGenAfter[k];    
 }
 
