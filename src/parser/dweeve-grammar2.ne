@@ -5,7 +5,7 @@ const moo = require("moo");
 
 const lexer = moo.compile({
             header: /^\%dw [0-9]+\.[0.9]+$/,
-            keyword: ['case', 'if', 'default', 'matches', 'match', 'var', 'fun', 'else', 'do', 'and', 'or'],
+            keyword: ['case', 'if', 'default', 'matches', 'match', 'var', 'fun', 'else', 'do', 'and', 'or', 'not'],
             WS:      { match: /[ \t\n]+/, lineBreaks: true },
             headerend : '---',
             comment: /\/\/.*?$/,
@@ -24,6 +24,7 @@ const lexer = moo.compile({
             sglstring:  { match : /['](?:\\['\\]|[^\n'\\])*[']/,},
             keyvalsep: /:/,
             comma: /,/,
+            bang: /!/,
             mimetype:  /(?:application|text)\/\w+/,
             word:  { match : /[A-Za-z$][\w0-9_$]*/},
             number:  /(?:0|[1-9][0-9]*\.?[0-9]*)/,
@@ -148,9 +149,10 @@ l60ops           -> l60ops l3operator l70ops        {% (data) =>( { type:'produc
                  | l70ops                           {% (data) =>( data[0] ) %}
 l70ops           -> l70ops l2operator l80ops        {% (data) =>( { type:data[1].type,  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } ) %}
                  | l80ops                           {% (data) =>( data[0] ) %}
-l80ops           -> l80ops l1operator operand       {% (data) =>( { type:'dot-op',  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } ) %}
+l80ops           -> l80ops l1operator l90ops        {% (data) =>( { type:'dot-op',  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } ) %}
+                 | l90ops                           {% (data) =>( data[0] ) %}
+l90ops           -> l0operator operand              {% (data) =>( { type:'un-op',  op: data[0].value, rhs: newOpData(data[1])  } ) %}
                  | operand                          {% (data) =>( data[0] ) %}
-
 @{%
 function newOpData(oldData) {
     if (oldData.value) return oldData.value
@@ -158,6 +160,8 @@ function newOpData(oldData) {
 }
 
 %}
+l0operator      -> "not"   {% (data) =>( { type:'dotop', value: data[0] } ) %}
+                 | "!"   {% (data) =>( { type:'dotop', value: data[0] } ) %}
 
 l1operator      -> dotops   {% (data) =>( { type:'dotop', value: data[0] } ) %}
 l2operator      -> "as"     {% (data) =>( { type:'as', value: data[0] } ) %}
