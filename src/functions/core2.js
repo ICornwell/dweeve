@@ -1,5 +1,6 @@
 const core = {}
 require('./core').addFunctions(core)
+const pluralizer = require('pluralize')
 
 function addFunctions(context) {
     context['isEven'] = isEven
@@ -20,6 +21,8 @@ function addFunctions(context) {
     context['joinBy'] = joinBy
     context['trim'] = trim
     context['to'] = to
+    context['reduce'] = reduce
+    context['pluralize'] = pluralize
 }
 
 function isEven(number) {
@@ -54,8 +57,9 @@ function isDate(value) {
 }
 
 function isEmpty(v) {
+    if (v==null || v==undefined) return true
     if (Array.isArray(v) && v.length==0) return true
-    if (typeof v === 'object' && Object.keys(v).filter(k=>(!k.startsWith('__')  ))) return true
+    if (typeof v === 'object' && Object.keys(v).filter(k=>(k!=='__ukey-obj' && k!=='__hasDynamicContent')  ).length==0) return true
     if (String(v).trim()==='') return true
 
     return false
@@ -65,7 +69,7 @@ function isDecimal(num) {
     try {
         const v = parseFloat(num)
         return String(v)==num
-    } catch {
+    } catch (err)  {
         return false
     }
 }
@@ -74,7 +78,7 @@ function isInteger(num) {
     try {
         const v = parseInt(num)
         return String(v)==num
-    } catch {
+    } catch  (err) {
         return false
     }
 }
@@ -100,7 +104,7 @@ function min(list) {
         });
         return agg
     }
-    catch {}
+    catch (err)  {}
     return 0
 }
 
@@ -115,7 +119,7 @@ function max(list) {
         });
         return agg
     }
-    catch {}
+    catch (err)  {}
     return 0
 }
 
@@ -167,6 +171,23 @@ function to(start, end) {
         arr.push(idx)
 
     return arr
+}
+
+function reduce(arr, reduceFunc, init)
+{
+    let acc = init;
+    if (acc==undefined && arr.length>0){
+        if (isDecimal(arr[0])) acc = 0; else acc = ''
+    }
+    arr.forEach(m=>
+      acc=reduceFunc(m, acc)  
+        )
+    return acc
+}
+
+function pluralize(s)
+{
+    return pluralizer(s);
 }
 
 

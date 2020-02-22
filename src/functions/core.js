@@ -232,8 +232,8 @@ function flatMap(source, mapFunc){
 }
 
 function flatten(source){
-    if (source==null || source==undefined)
-        throw 'Error: trying to flatten on a null/undefined object/array'
+//    if (source==null || source==undefined)
+//        throw 'Error: trying to flatten on a null/undefined object/array'
     if (source==null || !Array.isArray(source)) return source
     let out = []
     source.forEach(m=> {

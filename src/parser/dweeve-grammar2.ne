@@ -5,7 +5,7 @@ const moo = require("moo");
 
 const lexer = moo.compile({
             header: /^\%dw [0-9]+\.[0.9]+$/,
-            keyword: ['case', 'if', 'default', 'matches', 'match', 'var', 'fun', 'else', 'do', 'and', 'or', 'not'],
+            
             WS:      { match: /[ \t\n]+/, lineBreaks: true },
             headerend : '---',
             comment: /\/\/.*?$/,
@@ -26,7 +26,9 @@ const lexer = moo.compile({
             comma: /,/,
             bang: /!/,
             mimetype:  /(?:application|text)\/\w+/,
-            word:  { match : /[A-Za-z$][\w0-9_$]*/},
+            word:  { match : /[A-Za-z$][\w0-9_$]*/, type:moo.keywords({
+                keyword: ['case', 'if', 'default', 'matches', 'match', 'var', 'fun', 'else', 'do', 'and', 'or', 'not']
+            })},
             number:  /(?:0|[1-9][0-9]*\.?[0-9]*)/,
             lparen:  '(',
             rparen:  ')',
@@ -48,6 +50,21 @@ const lexer = moo.compile({
 @{%
     const thing = (name, data) => ( { type: name, 
         data: Array.isArray(data) ? data.filter(e => e !== null && (!Array.isArray(e) || e.length > 0)) : data } );
+%}
+
+@{%
+ if (!Array.prototype.flat)  {
+        Object.defineProperty(Array.prototype, 'flat', {
+            value: function(depth = 1, stack = []) {
+                for (let item of this)
+                    if (item instanceof Array && depth > 0)
+                        item.flat(depth - 1, stack);
+                    else 
+                        stack.push(item);
+                return stack;
+            }
+        });
+    }
 %}
 
 # Pass your lexer object using the @lexer option:
@@ -132,9 +149,13 @@ expression       -> result        {% (data) => ( data[0] ) %}
 result          -> l01ops                           {% (data) =>( data[0] ) %}
 l01ops           -> l01ops %word l05ops             {% (data) =>( { type:'fun-call',  fun: data[1].value, args: [data[0], data[2]]  } ) %}
                  | l05ops                           {% (data) =>( data[0] ) %}
-l05ops           -> %word l9operator l10ops         {% (data) =>( { type:'lambda',  args: data[0], expression: data[2]  } ) %}
-                 | arglist l9operator l10ops        {% (data) =>( { type:'lambda',  args: data[0].args,  expression: data[2]  } ) %}
+l05ops           -> %word l9operator l07ops         {% (data) =>( { type:'lambda',  args: data[0], expression: data[2]  } ) %}
+                 | arglist l9operator l07ops        {% (data) =>( { type:'lambda',  args: data[0].args,  expression: data[2]  } ) %}
+                 | l07ops                           {% (data) =>( data[0] ) %}
+
+l07ops           -> l85operator l10ops              {% (data) =>( { type:'un-op',  op: data[0].value, rhs: newOpData(data[1])  } ) %}
                  | l10ops                           {% (data) =>( data[0] ) %}
+
 l10ops           -> l10ops l8operator l20ops        {% (data) =>( { type:'or',  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } ) %}
                  | l20ops                           {% (data) =>( data[0] ) %}
 l20ops           -> l20ops l7operator l30ops        {% (data) =>( { type:'and',  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } ) %}
@@ -147,11 +168,11 @@ l50ops           -> l50ops l4operator l60ops        {% (data) =>( { type:'sum', 
                  | l60ops                           {% (data) =>( data[0] ) %}
 l60ops           -> l60ops l3operator l70ops        {% (data) =>( { type:'product',  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } ) %}
                  | l70ops                           {% (data) =>( data[0] ) %}
-l70ops           -> l70ops l2operator l80ops        {% (data) =>( { type:data[1].type,  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } ) %}
+l70ops           -> l70ops l2operator l75ops        {% (data) =>( { type:data[1].type,  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } ) %}
+                 | l75ops                           {% (data) =>( data[0] ) %}
+l75ops           -> l0operator l80ops               {% (data) =>( { type:'un-op',  op: data[0].value, rhs: newOpData(data[1])  } ) %}
                  | l80ops                           {% (data) =>( data[0] ) %}
-l80ops           -> l80ops l1operator l90ops        {% (data) =>( { type:'dot-op',  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } ) %}
-                 | l90ops                           {% (data) =>( data[0] ) %}
-l90ops           -> l0operator operand              {% (data) =>( { type:'un-op',  op: data[0].value, rhs: newOpData(data[1])  } ) %}
+l80ops           -> l80ops l1operator operand       {% (data) =>( { type:'dot-op',  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } ) %}
                  | operand                          {% (data) =>( data[0] ) %}
 @{%
 function newOpData(oldData) {
@@ -160,8 +181,7 @@ function newOpData(oldData) {
 }
 
 %}
-l0operator      -> "not"   {% (data) =>( { type:'dotop', value: data[0] } ) %}
-                 | "!"   {% (data) =>( { type:'dotop', value: data[0] } ) %}
+l0operator      -> "!"   {% (data) =>( { type:'dotop', value: data[0] } ) %}
 
 l1operator      -> dotops   {% (data) =>( { type:'dotop', value: data[0] } ) %}
 l2operator      -> "as"     {% (data) =>( { type:'as', value: data[0] } ) %}
@@ -184,6 +204,7 @@ l6operator      -> "!="     {% (data) =>( { type:'operator', value: data[0] } ) 
                  |"=="      {% (data) =>( { type:'operator', value: data[0] } ) %}
 l7operator      -> "and"    {% (data) =>( { type:'operator', value: data[0] } ) %}
 l8operator      -> "or"     {% (data) =>( { type:'operator', value: data[0] } ) %}
+l85operator      -> "not"   {% (data) =>( { type:'dotop', value: data[0] } ) %}
 l9operator      -> "->"     {% (data) =>( { type:'lambda', value: data[0] } ) %}
 
 

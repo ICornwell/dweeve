@@ -11,6 +11,8 @@ opfuncs['.*'] = selector
 opfuncs['..*'] = selector
 opfuncs['and'] = andLogic
 opfuncs['or'] = orLogic
+opfuncs['!'] = notLogic
+opfuncs['not'] = notLogic
 
 codeGenFor['dot-op'] = (context, code) => { functionHandler(context, code) }
 codeGenFor['product'] = (context, code) => { functionHandler(context, code) }
@@ -19,6 +21,8 @@ codeGenFor['relative'] = (context, code) => { functionHandler(context, code) }
 codeGenFor['and'] = (context, code) => { functionHandler(context, code) }
 codeGenFor['or'] = (context, code) => { functionHandler(context, code) }
 codeGenFor['bracket-operand'] = (context, code) => { functionHandler(context, code) }
+codeGenFor['un-op'] = (context, code) => { functionHandler(context, code) }
+
 
 function functionHandler (context, code)  { 
     let op = context.node;
@@ -60,6 +64,11 @@ function equals(lhs, op, rhs, context,code) {
 function andLogic(lhs, op, rhs, context,code) {
     emitOperand(lhs, context, code)
     code.addCode('&&');
+    emitOperand(rhs, context, code)
+}
+
+function notLogic(lhs, op, rhs, context,code) {
+    code.addCode('!');
     emitOperand(rhs, context, code)
 }
 
