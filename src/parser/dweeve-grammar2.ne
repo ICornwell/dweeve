@@ -148,6 +148,8 @@ expression       -> result        {% (data) => ( data[0] ) %}
 
 result          -> l01ops                           {% (data) =>( data[0] ) %}
 l01ops           -> l01ops %word l05ops             {% (data) =>( { type:'fun-call',  fun: data[1].value, args: [data[0], data[2]]  } ) %}
+                 |  l01ops "match" nonObjectOperand           {% (data) =>( { type:'fun-call',  fun: data[1].value, args: [data[0], data[2]]  } ) %}
+                 |  l01ops "matches" nonObjectOperand         {% (data) =>( { type:'fun-call',  fun: data[1].value, args: [data[0], data[2]]  } ) %}
                  | l05ops                           {% (data) =>( data[0] ) %}
 l05ops           -> %word l9operator l07ops         {% (data) =>( { type:'lambda',  args: data[0], expression: data[2]  } ) %}
                  | arglist l9operator l07ops        {% (data) =>( { type:'lambda',  args: data[0].args,  expression: data[2]  } ) %}
@@ -209,12 +211,14 @@ l9operator      -> "->"     {% (data) =>( { type:'lambda', value: data[0] } ) %}
 
 
 
-operand         -> identifier {% (data) => ( { type:'identifier-operand', value: data[0] } ) %}
+operand         -> nonObjectOperand {% (data) => ( { type:'non-object-operand', value: data[0] } ) %}
+                 | object {% (data) => ( { type:'expression', value: data[0] } ) %}
+                 | keyvaluepair  {% (data) => ( { type:'kvp', value: data[0] } ) %}
+
+nonObjectOperand -> identifier {% (data) => ( { type:'identifier-operand', value: data[0] } ) %}
                  | literal {% (data) => ( { type:'literal-operand', value: data[0] } ) %}
 
                  | %lparen expression %rparen {% (data) => ( { type:'bracket-operand', value: data[1] } ) %}
-                 | object {% (data) => ( { type:'expression', value: data[0] } ) %}
-                 | keyvaluepair  {% (data) => ( { type:'kvp', value: data[0] } ) %}
 #                | defaultexp {% (data) => ( { type:'expression', value: data[0] } ) %}
 #                 | %lparen %word:? (%comma %word):* %rparen %thinarrow expression
 #                        {% (data) => ( { type:'lambda', value: { 
@@ -233,8 +237,11 @@ array           -> %lsquare explist %rsquare {% (data) => ( { type:'array',  mem
 explist         -> expression:? ( %comma expression ):* {% (data) => ( { type:"arg-list",
                            args: [data[0], ...(data[1].flat().filter(a=>a.type!=='comma') ) ] } ) %}
 
-arglist         -> %lparen %word:? (%comma %word):* %rparen {% (data) => ( { type:"arg-list",
+arglist         -> %lparen arg:? (%comma arg):* %rparen {% (data) => ( { type:"arg-list",
                            args: [data[1], ...(data[2].flat().filter(a=>a.type!=='comma') ) ] } ) %}
+
+arg             -> %word "=" literal {% (data) => ( { type:'arg', value: `${data[0]} = ${data[2].value}` } ) %}
+                 | %word             {% (data) => ( { type:'arg', value: data[0] } ) %}
 
 literal         ->  %sglstring  {% (data) => ( { type:'literal', value: data[0] } ) %}
                  |  %dblstring  {% (data) => ( { type:'literal', value: data[0] } ) %}

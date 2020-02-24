@@ -14,15 +14,20 @@ function addFunctions(context) {
     context['isLeapYear'] = isLeapYear
     context['log'] = log
     context['min'] = min
+    context['minBy'] = minBy
+    context['match'] = match
+    context['matches'] = matches
     context['max'] = max
+    context['maxBy'] = maxBy
     context['mod'] = mod
     context['now'] = now
     context['groupBy'] = groupBy
+    context['orderBy'] = orderBy
     context['joinBy'] = joinBy
-    context['trim'] = trim
-    context['to'] = to
     context['reduce'] = reduce
     context['pluralize'] = pluralize
+    context['trim'] = trim
+    context['to'] = to
 }
 
 function isEven(number) {
@@ -69,7 +74,7 @@ function isDecimal(num) {
     try {
         const v = parseFloat(num)
         return String(v)==num
-    } catch (err)  {
+    } catch (err) {
         return false
     }
 }
@@ -78,7 +83,7 @@ function isInteger(num) {
     try {
         const v = parseInt(num)
         return String(v)==num
-    } catch  (err) {
+    } catch (err) {
         return false
     }
 }
@@ -104,8 +109,35 @@ function min(list) {
         });
         return agg
     }
-    catch (err)  {}
+    catch (err) {}
     return 0
+}
+
+function minBy(list, itemFunc) {
+    if (!Array.isArray(list))
+        return 0
+    try{
+        let agg;
+        let out = null;
+        list.forEach(m => {
+            var v = itemFunc(m)
+            if (agg==undefined || v < agg) {
+                agg = v
+                out = m
+            }
+        });
+        return out
+    }
+    catch (err) {}
+    return 0
+}
+
+function match(text, matcher) {
+    return text.match(matcher)
+}
+
+function matches(text, matcher) {
+    return text.match(matcher)!=null;
 }
 
 function max(list) {
@@ -119,7 +151,26 @@ function max(list) {
         });
         return agg
     }
-    catch (err)  {}
+    catch (err) {}
+    return 0
+}
+
+function maxBy(list, itemFunc) {
+    if (!Array.isArray(list))
+        return 0
+    try{
+        let agg;
+        let out = null;
+        list.forEach(m => {
+            var v = itemFunc(m)
+            if (agg==undefined || v > agg) {
+                agg = v
+                out = m
+            }
+        });
+        return out
+    }
+    catch (err) {}
     return 0
 }
 
@@ -176,13 +227,30 @@ function to(start, end) {
 function reduce(arr, reduceFunc, init)
 {
     let acc = init;
-    if (acc==undefined && arr.length>0){
-        if (isDecimal(arr[0])) acc = 0; else acc = ''
-    }
-    arr.forEach(m=>
-      acc=reduceFunc(m, acc)  
-        )
+    // was there an initialiser for the accumaltor ?
+    if (reduceFunc.toString().match(/\([\w]+,\s*[\w]+\s*=/)==null) {
+        if (acc==undefined && arr.length>0){
+            if (isDecimal(arr[0])) acc = 0; else acc = ''
+        }
+    } else acc = undefined
+    arr.forEach(m=> {
+      if (acc==undefined)
+        acc=reduceFunc(m)
+      else
+        acc=reduceFunc(m, acc)
+     } )
     return acc
+}
+
+function orderBy(arr, orderFunc) {
+    compare = (x,y) => {
+        if (typeof x == 'object' && Object.keys(x)[0].startsWith('__key')) x=Object.values(x)[0]
+        if (typeof y == 'object' && Object.keys(y)[0].startsWith('__key')) x=Object.values(y)[0]
+        if (orderFunc(x) > orderFunc(y)) return 1;
+        if (orderFunc(y) > orderFunc(x)) return -1;
+        return 0;
+      }
+      return arr.slice().sort(compare)
 }
 
 function pluralize(s)
