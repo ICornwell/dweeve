@@ -19,7 +19,9 @@ let codeGenAfter = new Dictionary.Dictionary();
             if (isAnonymousLambdaExpression(arg) && idx > 0) // only for rhs lambdas, hence idx > 0!
             // otherwise [x,y,z] filter ($ >3) map ($++'!') picks up the '$' on the filter rhs and assume map lhs needs the anonymous treatment
                 buildLamda(arg, context, code);
-            else 
+            else if (typeof arg === 'boolean')
+                code.addCode(arg.toString())
+            else
                 context.compiler({node: arg, compiler:context.compiler}, code);
             if (++idx<op.args.length)
                 code.addCode(', ');
@@ -30,15 +32,17 @@ let codeGenAfter = new Dictionary.Dictionary();
  };
 
  function buildLamda(expression, context, code){
-    var args = getAllIdentifiersUsedInExpression(expression).filter(id=>id.match(/[$]+/)).filter(onlyUnique);
-    code.addCode('(');
-    let idx=1;
-    args.forEach(arg => {
-        code.addCode(arg);
-        if (idx++<args.length)
-           code.addCode(', ');
-    });
-    code.addCode(') => (');
+//TODO: delete this - turns out we didn't need to tr to be so clever!
+//    var args = getAllIdentifiersUsedInExpression(expression).filter(id=>id.match(/[$]+/)).filter(onlyUnique);
+//    code.addCode('(');
+//    let idx=1;
+//    args.forEach(arg => {
+//        code.addCode(arg);
+//        if (idx++<args.length)
+//           code.addCode(', ');
+//    });
+//   code.addCode(') => (');
+    code.addCode('($,$$,$$$) => (');
     context.compiler({parentType: 'lambda', node: expression, compiler:context.compiler}, code);
     code.addCode(')\n');
  }

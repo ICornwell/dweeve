@@ -17,9 +17,7 @@ const lexer = moo.compile({
             dotdotstarbinop: /\.\.\*/,
             dotdotbinop: /\.\./,
             dotstarbinop: /\.\*/,
-            dotbinop: /[.]/,
             mathbinop: /==|\+\+|<=|>=|\|\||&&|!=|[=><\-+/*|&\^]/,
-            
             dblstring:  { match : /["](?:\\["\\]|[^\n"\\])*["]/,},
             sglstring:  { match : /['](?:\\['\\]|[^\n'\\])*[']/,},
             keyvalsep: /:/,
@@ -27,9 +25,11 @@ const lexer = moo.compile({
             bang: /!/,
             mimetype:  /(?:application|text)\/\w+/,
             word:  { match : /[A-Za-z$][\w0-9_$]*/, type:moo.keywords({
-                keyword: ['case', 'if', 'default', 'matches', 'match', 'var', 'fun', 'else', 'do', 'and', 'or', 'not']
+                keyword: ['case', 'if', 'default', 'matches', 'match', 'var', 'fun', 'else', 'do', 'and', 'or', 'not', 'as','using','type'],
+                type: ['Array','String','Boolean','CData','Date','DateTime','Time','Number','Object','Regex']
             })},
-            number:  /(?:0|[1-9][0-9]*\.?[0-9]*)/,
+            number:  /(?:(?:0|[1-9][0-9]*)\.?[0-9]*)/,
+            dotbinop: /[.]/,
             lparen:  '(',
             rparen:  ')',
             lbrace:  '{',
@@ -105,14 +105,15 @@ object          -> %lbrace objectmember (%comma objectmember):* %rbrace {% (data
                  | %lbrace %rbrace  {% (data) => ( { type:"member-list", members: [] } ) %}
 
 objectmember    -> keyvaluepair               {% (data) => ( { type: 'member', key: data[0].key, value: data[0].value} ) %}
-                 | %lparen expression %rparen {% (data) => ( { type:'bracket-operand', value: data[1] } ) %}
+                 | %lparen expression %rparen ("if" %lparen expression %rparen):? {% (data) => ( { type:'bracket-operand', value: data[1], 
+                        cond: data[3]==null ? undefined : data[3][2] } ) %}
 
 keyvaluepair    -> key %keyvalsep expression %comma:? {% (data) => ( { type: 'member', key: data[0], value: data[2]} ) %}
 
 key             -> %word {% (data) => ( { type:'key', value: data[0] } ) %}
                  | %sglstring {% (data) => ( { type:'key', value: data[0] } ) %}
                  | %dblstring {% (data) => ( { type:'key', value: data[0] } ) %}
-                 | %lparen expression %rparen {% (data) => ( { type:'dynamic-key', value: data[1] } ) %}
+                 | %lparen expression %rparen  {% (data) => ( { type:'dynamic-key', value: data[1] } ) %}
 
 comment         -> %comment  {% (data) => ( { type:'commemt', value: data[0] } ) %}
 
@@ -135,7 +136,7 @@ matchcond      -> (%word ":"):? literal {% (data) => ( { type:'match-literal', v
                  | %word "if" expression {% (data) => ( { type:'match-if-exp', var:data[0], expMatch:data[2] } ) %}
                  | %word "matches" %regex {% (data) => ( { type:'match-regex', var:data[0], regex:data[2] } ) %}
         #         | operand {% (data) => ( { type:'match-vlaue', valMatch:data[0] } ) %}
-                 | (%word):? "is" %word {% (data) => ( { type:'match-type',var:(data[0]==null) ? null : data[0][0],
+                 | (%word):? "is" %type {% (data) => ( { type:'match-type',var:(data[0]==null) ? null : data[0][0],
                         typeName:data[2] } ) %}
 
 
@@ -147,7 +148,7 @@ expression       -> result        {% (data) => ( data[0] ) %}
 # operator precedence goes here!
 
 result          -> l01ops                           {% (data) =>( data[0] ) %}
-l01ops           -> l01ops %word l05ops             {% (data) =>( { type:'fun-call',  fun: data[1].value, args: [data[0], data[2]]  } ) %}
+l01ops           -> l01ops %word ("-"):? l05ops             {% (data) =>( { type:'fun-call',  fun: data[1].value, args: [data[0], data[3], data[2]!=null]  } ) %}
                  |  l01ops "match" nonObjectOperand           {% (data) =>( { type:'fun-call',  fun: data[1].value, args: [data[0], data[2]]  } ) %}
                  |  l01ops "matches" nonObjectOperand         {% (data) =>( { type:'fun-call',  fun: data[1].value, args: [data[0], data[2]]  } ) %}
                  | l05ops                           {% (data) =>( data[0] ) %}
@@ -170,11 +171,20 @@ l50ops           -> l50ops l4operator l60ops        {% (data) =>( { type:'sum', 
                  | l60ops                           {% (data) =>( data[0] ) %}
 l60ops           -> l60ops l3operator l70ops        {% (data) =>( { type:'product',  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } ) %}
                  | l70ops                           {% (data) =>( data[0] ) %}
-l70ops           -> l70ops l2operator l75ops        {% (data) =>( { type:data[1].type,  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } ) %}
+l70ops           -> l70ops "default" l75ops         {% (data) =>( { type:'default',  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } ) %}
+                 | l70ops "as" %type (%lbrace "format" %keyvalsep %dblstring %rbrace):? 
+                                                    {% (data) =>( { type:'as',  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2]),
+                                                        format: data[3]!=null ? data[3][3] : null  } ) %}
+                 | l70ops "as" %word         {% (data) =>( { type:'as',  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } ) %}
+                                                    
                  | l75ops                           {% (data) =>( data[0] ) %}
 l75ops           -> l0operator l80ops               {% (data) =>( { type:'un-op',  op: data[0].value, rhs: newOpData(data[1])  } ) %}
                  | l80ops                           {% (data) =>( data[0] ) %}
+#l77ops           -> l80ops %lsquare expression %rsquare  {% (data) =>( { type:'fun-call', fun: '__indexed',  args: [ data[0], data[2]]  } ) %}
+#                 | l80ops                           {% (data) =>( data[0] ) %}
+
 l80ops           -> l80ops l1operator operand       {% (data) =>( { type:'dot-op',  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } ) %}
+                 | l80ops %lsquare expression %rsquare  {% (data) =>( { type:'fun-call', fun: '__indexed',  args: [ data[0], data[2]]  } ) %}
                  | operand                          {% (data) =>( data[0] ) %}
 @{%
 function newOpData(oldData) {
@@ -229,7 +239,7 @@ nonObjectOperand -> identifier {% (data) => ( { type:'identifier-operand', value
                  | array {% (data) => ( { type:'expression', value: data[0] } ) %}
 
 identifier      -> identifier %lparen explist %rparen {% (data) => ( { type:'fun-call',  fun:data[0], args:data[2].args } ) %}
-                 | identifier %lsquare expression %rsquare {% (data) => ( { type:'idx-identifier', ident: data[0], idx: data[2] } ) %}
+#                 | identifier %lsquare expression %rsquare {% (data) => ( { type:'idx-identifier', ident: data[0], idx: data[2] } ) %}
                  | %word {% (data) => ( { type:'identifier', ident: data[0] } ) %}
 
 array           -> %lsquare explist %rsquare {% (data) => ( { type:'array',  members:data[1] } ) %}

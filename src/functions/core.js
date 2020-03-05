@@ -1,3 +1,4 @@
+const formatn = require('format-number-with-string');
 
 function addFunctions(context) {
     context['isOdd'] = isOdd
@@ -21,6 +22,8 @@ function addFunctions(context) {
     context['mapObject'] = mapObject
     context['readUrl'] = readUrl
     context['__add'] = __add
+    context['__indexed'] = __indexed
+    context['__format'] = __format
 }
 
 function isOdd(number) {
@@ -292,7 +295,12 @@ function mapObject(source, mapFunc){
             }
 
             k = isNaN(parseInt(k)) ? k : parseInt(k)
-            out['__key'+idx++]=(mapFunc(v, k));
+            let mr = (mapFunc(v, k, idx))
+            if (mr['__ukey-obj'])
+                out['__key'+idx]=mr['__key0']
+            else
+                out['__key'+idx]=mr;
+            idx++
         }
     }
 
@@ -339,6 +347,28 @@ function __add(lhs, rhs) {
     } else {
         return lhs + rhs
     }
+}
+
+function __indexed(obj, indexer){
+    try {
+        if (Array.isArray(obj) || obj['__ukey-obj']==undefined)
+            return obj[indexer];
+        else if (obj['__ukey-obj']) {
+            let outval;
+            Object.values(obj).forEach(v=>{
+                if (Object.keys(v)[0]===indexer) {
+                    outval = Object.values(v)[0]
+                }
+            })
+            if (outval!=undefined) return outval
+        }
+    }
+    catch (err) {}
+    throw new Error ('Indexer out of bounds or not found')
+}
+
+function __format(text, format) {
+    return formatn(text, format)
 }
 
 module.exports = { addFunctions: addFunctions, setResourceFileContent: setResourceFileContent}

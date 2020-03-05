@@ -1,5 +1,6 @@
 const Dictionary = require('dictionaryjs');
 
+
 let codeGenFor = new Dictionary.Dictionary();
 let codeGenAfter = new Dictionary.Dictionary();
 
@@ -14,9 +15,18 @@ codeGenFor['member-list'] = (context, code) => {
             if (m.type==='bracket-operand') {
                 code.addCode('"__dkey' + idx++ + '": ')
                 dynamicContent = true
-                code.addCode('__flattenDynamicContent(')
+                if (m.cond!=undefined) {
+                    code.addCode('(')
+                    context.compiler({parentType: 'obj-member-cond', node: m.cond, compiler:context.compiler}, code);
+                    code.addCode(') ?')
+                }
+// if member content needs flattening, that should be taken care of by the compile step and shouldn't need to be explicitly done here
+//                code.addCode('__flattenDynamicContent(')
                 context.compiler({parentType: 'obj-member', node: m.value, compiler:context.compiler}, code);
-                code.addCode(')')
+ //               code.addCode(')')
+                if (m.cond!=undefined) {
+                    code.addCode(': null')
+                }
             } else {
                 code.addCode('"__key' + idx++ + '": ')
                 code.addCode('{') ; 
@@ -57,6 +67,25 @@ codeGenFor['default'] = (context, code) => {
     code.addCode('); try { let v = (') ; 
     context.compiler({parentType: 'default-value', node: context.node.lhs, compiler:context.compiler}, code);
     code.addCode('); if (v!==null && v!==undefined) {return v;} else {return d;} } catch {return d} } )()\n ') 
+    return false; 
+};
+
+codeGenFor['as'] = (context, code) => { 
+    code.addCode('(');
+    if (context.node.rhs === 'String') {
+        if (context.node.format) {
+            code.addCode('__format((')
+            context.compiler({parentType: 'as', node: context.node.lhs, compiler:context.compiler}, code);
+            code.addCode('),')
+            context.compiler({parentType: 'as', node: context.node.format, compiler:context.compiler}, code);
+            code.addCode(')')
+        } else {
+            code.addCode('String(')
+            context.compiler({parentType: 'as', node: context.node.lhs, compiler:context.compiler}, code);
+            code.addCode(')')
+        }
+        code.addCode(')') 
+    }
     return false; 
 };
 

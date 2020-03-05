@@ -242,15 +242,19 @@ function reduce(arr, reduceFunc, init)
     return acc
 }
 
-function orderBy(arr, orderFunc) {
+function orderBy(arr, orderFunc, isReversed) {
     compare = (x,y) => {
         if (typeof x == 'object' && Object.keys(x)[0].startsWith('__key')) x=Object.values(x)[0]
         if (typeof y == 'object' && Object.keys(y)[0].startsWith('__key')) x=Object.values(y)[0]
         if (orderFunc(x) > orderFunc(y)) return 1;
         if (orderFunc(y) > orderFunc(x)) return -1;
         return 0;
-      }
-      return arr.slice().sort(compare)
+    }
+    let ordered = arr.slice().sort(compare)
+    if (isReversed)
+        ordered.reverse()
+
+    return ordered
 }
 
 function pluralize(s)
