@@ -28,6 +28,8 @@ function addFunctions(context) {
     context['pluralize'] = pluralize
     context['trim'] = trim
     context['to'] = to
+    context['sizeOf'] = sizeOf
+    context['keySet'] = keySet
 }
 
 function isEven(number) {
@@ -260,6 +262,25 @@ function orderBy(arr, orderFunc, isReversed) {
 function pluralize(s)
 {
     return pluralizer(s);
+}
+
+function sizeOf(arr){
+    if (Array.isArray(arr))
+        return arr.length
+
+    return 0;
+}
+
+function keySet(obj) {
+    if (typeof obj !== 'object')
+        return []
+
+    if (!obj['__ukey-obj'])
+        return Object.keys(obj)
+
+    if (obj['__ukey-obj'])
+        return Object.keys(obj).filter(k=>k.startsWith('__key'))
+        .map(k=>Object.keys(obj[k])[0])
 }
 
 
