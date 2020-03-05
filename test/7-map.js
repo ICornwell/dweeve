@@ -83,5 +83,73 @@ it('simple mapObject over an extra-wrapped-list', function(done) {
   done();
 });
 
+it('map - rename keys', function(done) {
+  let attributes = {};
+  let vars = {};
+  payload=`
+  {
+    "flights":[
+    {
+    "availableSeats":45,
+    "airlineName":"Ryan Air",
+    "aircraftBrand":"Boeing",
+    "aircraftType":"737",
+    "departureDate":"12/14/2017",
+    "origin":"BCN",
+    "destination":"FCO"
+    },
+    {
+    "availableSeats":15,
+    "airlineName":"Ryan Air",
+    "aircraftBrand":"Boeing",
+    "aircraftType":"747",
+    "departureDate":"08/03/2017",
+    "origin":"FCO",
+    "destination":"DFW"
+    }]
+  }
+  `;
+  let dwl = `
+  %dw 2.0
+output application/json
+---
+payload.flights map (flight) -> {
+    (flight mapObject (value, key) -> {
+        (emptySeats: value) if(key  == 'availableSeats'),
+        (airline: value) if(key  == 'airlineName'),
+        ((key):value) if(key !='availableSeats' and key  != 'airlineName')
+    })
+}
+   `;
+
+  let exptected_result = `
+  [
+    {
+      "emptySeats": 45,
+      "airline": "Ryan Air",
+      "aircraftBrand": "Boeing",
+      "aircraftType": "737",
+      "departureDate": "12/14/2017",
+      "origin": "BCN",
+      "destination": "FCO"
+    },
+    {
+      "emptySeats": 15,
+      "airline": "Ryan Air",
+      "aircraftBrand": "Boeing",
+      "aircraftType": "747",
+      "departureDate": "08/03/2017",
+      "origin": "FCO",
+      "destination": "DFW"
+    }
+  ]
+  `;
+
+  let result = dweeve.run(dwl, payload, attributes, vars);
+
+  dwassert.equalwows(result, exptected_result, 'output does not match example')
+  done();
+});
+
 }
 )

@@ -102,7 +102,7 @@ function selector(lhs, op, rhs, context,code) {
 
 function emitOperand(operand, context, code) {
     const opCode = getSubCode(code)
-    if (operand.op)
+    if (operand.op && operand.type!=='as')
         opCodeGen(operand.lhs, operand.op, operand.rhs, context, opCode)
     else
         context.compiler({parentType: 'math-result', node: operand, compiler:context.compiler}, opCode);
