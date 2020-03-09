@@ -29,7 +29,7 @@ const lexer = moo.compile({
             bang: /!/,
             mimetype:  /(?:application|text)\/\w+/,
             word:  { match : /[A-Za-z$][\w0-9_$]*/, type:moo.keywords({
-                keyword: ['case', 'if', 'default', 'matches', 'match', 'var', 'fun', 'else', 'do', 'and', 'or', 'not', 'as','using','type'],
+                keyword: ['case', 'if', 'default', 'matches', 'match', 'var', 'fun', 'else', 'do', 'and', 'or', 'not','is', 'as','using'],
                 type: ['Array','String','Boolean','CData','Date','DateTime','Time','Number','Object','Regex']
             })},
             number:  /(?:(?:0|[1-9][0-9]*)\.?[0-9]*)/,
@@ -185,6 +185,7 @@ var grammar = {
     {"name": "l70ops", "symbols": ["l70ops", {"literal":"as"}, (lexer.has("type") ? {type: "type"} : type), "l70ops$ebnf$1"], "postprocess":  (data) =>( { type:'as',  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2]),
         format: data[3]!=null ? data[3][3] : null  } ) },
     {"name": "l70ops", "symbols": ["l70ops", {"literal":"as"}, (lexer.has("word") ? {type: "word"} : word)], "postprocess": (data) =>( { type:'as',  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } )},
+    {"name": "l70ops", "symbols": ["l70ops", {"literal":"is"}, (lexer.has("type") ? {type: "type"} : type)], "postprocess": (data) =>( { type:'is',  lhs: newOpData(data[0]), op: { value: "is"}, rhs: newOpData(data[2])  } )},
     {"name": "l70ops", "symbols": ["l75ops"], "postprocess": (data) =>( data[0] )},
     {"name": "l75ops", "symbols": ["l0operator", "l80ops"], "postprocess": (data) =>( { type:'un-op',  op: data[0].value, rhs: newOpData(data[1])  } )},
     {"name": "l75ops", "symbols": ["l80ops"], "postprocess": (data) =>( data[0] )},

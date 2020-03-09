@@ -13,6 +13,7 @@ opfuncs['and'] = andLogic
 opfuncs['or'] = orLogic
 opfuncs['!'] = notLogic
 opfuncs['not'] = notLogic
+opfuncs['is'] = isLogic
 
 codeGenFor['dot-op'] = (context, code) => { functionHandler(context, code) }
 codeGenFor['product'] = (context, code) => { functionHandler(context, code) }
@@ -22,7 +23,7 @@ codeGenFor['and'] = (context, code) => { functionHandler(context, code) }
 codeGenFor['or'] = (context, code) => { functionHandler(context, code) }
 codeGenFor['bracket-operand'] = (context, code) => { functionHandler(context, code) }
 codeGenFor['un-op'] = (context, code) => { functionHandler(context, code) }
-
+codeGenFor['is'] = (context, code) => { functionHandler(context, code) }
 
 function functionHandler (context, code)  { 
     let op = context.node;
@@ -78,6 +79,19 @@ function orLogic(lhs, op, rhs, context,code) {
     emitOperand(rhs, context, code)
 }
 
+function isLogic(lhs, op, rhs, context,code) {
+    if (rhs==="Array") {
+        code.addCode('Array.isArray (')
+        emitOperand(lhs, context, code)
+        code.addCode(')')
+    } else {
+        code.addCode('typeof (')
+        emitOperand(lhs, context, code)
+        code.addCode(')=== (\'' + String(rhs).toLowerCase()+'\')')
+    }
+
+}
+
 function selector(lhs, op, rhs, context,code) {
     switch (op.type) {
         case "dot":
@@ -102,7 +116,7 @@ function selector(lhs, op, rhs, context,code) {
 
 function emitOperand(operand, context, code) {
     const opCode = getSubCode(code)
-    if (operand.op && operand.type!=='as')
+    if (operand.op && operand.type!=='as') // 'as' is a bit special, sorry
         opCodeGen(operand.lhs, operand.op, operand.rhs, context, opCode)
     else
         context.compiler({parentType: 'math-result', node: operand, compiler:context.compiler}, opCode);

@@ -25,7 +25,7 @@ const lexer = moo.compile({
             bang: /!/,
             mimetype:  /(?:application|text)\/\w+/,
             word:  { match : /[A-Za-z$][\w0-9_$]*/, type:moo.keywords({
-                keyword: ['case', 'if', 'default', 'matches', 'match', 'var', 'fun', 'else', 'do', 'and', 'or', 'not', 'as','using','type'],
+                keyword: ['case', 'if', 'default', 'matches', 'match', 'var', 'fun', 'else', 'do', 'and', 'or', 'not','is', 'as','using'],
                 type: ['Array','String','Boolean','CData','Date','DateTime','Time','Number','Object','Regex']
             })},
             number:  /(?:(?:0|[1-9][0-9]*)\.?[0-9]*)/,
@@ -176,7 +176,7 @@ l70ops           -> l70ops "default" l75ops         {% (data) =>( { type:'defaul
                                                     {% (data) =>( { type:'as',  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2]),
                                                         format: data[3]!=null ? data[3][3] : null  } ) %}
                  | l70ops "as" %word         {% (data) =>( { type:'as',  lhs: newOpData(data[0]), op: data[1].value, rhs: newOpData(data[2])  } ) %}
-                                                    
+                 | l70ops "is" %type         {% (data) =>( { type:'is',  lhs: newOpData(data[0]), op: { value: "is"}, rhs: newOpData(data[2])  } ) %}                                    
                  | l75ops                           {% (data) =>( data[0] ) %}
 l75ops           -> l0operator l80ops               {% (data) =>( { type:'un-op',  op: data[0].value, rhs: newOpData(data[1])  } ) %}
                  | l80ops                           {% (data) =>( data[0] ) %}
