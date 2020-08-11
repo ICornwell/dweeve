@@ -378,9 +378,7 @@ describe('Extract-Data', function() {
         dwassert.equalwows(result, exptected_result, 'output does not match example')
         done()
     })
-
-    it('extract from json (array), all values with .*', function(done) {
-        
+yarn 
         let attributes = {}
         let vars = {}
 
