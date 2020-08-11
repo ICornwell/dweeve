@@ -18,7 +18,7 @@ What it isn't/doesn't:
 
 d\~weeve uses nearley [https://nearley.js.org/](https://nearley.js.org/) for grammar and parsing
 
-There is a branch 'dweeve4browser' with some hacks and tweaks for running in the browser.
+There was a branch 'dweeve4browser' with some hacks and tweaks for running in the browser, killed this as this now has a nicely babel'd lib build.
 
 You can play with it here: http://dweeve.smallwalrus.com/
 
