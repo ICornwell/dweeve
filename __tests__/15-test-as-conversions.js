@@ -1,14 +1,14 @@
-const dweeve = require("../src/exe/dweeve.js");
-var chai = require('chai');
-var assert = chai.assert;
-var dwassert = require('./dwassert');
+import dweeve from '../src/exe/dweeve.js'
+import chai from 'chai'
+var assert = chai.assert
+import dwassert from '../__asserts__/dwassert'
 
 describe('test "as" operators', function() {
   it('simple number to string', function(done) {
         
-    payload = ''
-    let attributes = {};
-    let vars = {};
+    let payload = ''
+    let attributes = {}
+    let vars = {}
 
     let dwl = `
     var payload = 56
@@ -16,18 +16,18 @@ describe('test "as" operators', function() {
     payload as String
     `
 
-    let exptected_result = `"56"`;
+    let exptected_result = `"56"`
 
-    let result = dweeve.run(dwl, payload, attributes, vars);
+    let result = dweeve.run(dwl, payload, attributes, vars)
     dwassert.equalwows(result, exptected_result, 'output does not match example')
-    done();
-});
+    done()
+})
 
 it('simple number to formatted string', function(done) {
         
-  payload = ''
-  let attributes = {};
-  let vars = {};
+  let payload = ''
+  let attributes = {}
+  let vars = {}
 
   let dwl = `
   var payload = 56
@@ -35,16 +35,16 @@ it('simple number to formatted string', function(done) {
   payload as String { format: "##.00"}
   `
 
-  let exptected_result = `"56.00"`;
+  let exptected_result = `"56.00"`
 
-  let result = dweeve.run(dwl, payload, attributes, vars);
+  let result = dweeve.run(dwl, payload, attributes, vars)
   dwassert.equalwows(result, exptected_result, 'output does not match example')
-  done();
-});
+  done()
+})
 
 it('rename keys with "as" embedded', function(done) {
         
-  payload = `{
+  let payload = `{
     "flights":[
     {
     "availableSeats":45,
@@ -66,8 +66,8 @@ it('rename keys with "as" embedded', function(done) {
     }]
   }`
 
-  let attributes = {};
-  let vars = {};
+  let attributes = {}
+  let vars = {}
 
   let dwl = `
   %dw 2.0
@@ -101,11 +101,11 @@ payload.flights map (flight) -> {
     "origin": "FCO",
     "destination": "DFW"
   }
-]`;
+]`
 
-  let result = dweeve.run(dwl, payload, attributes, vars);
+  let result = dweeve.run(dwl, payload, attributes, vars)
   dwassert.equalwows(result, exptected_result, 'output does not match example')
-  done();
-});
+  done()
+})
 }
 )

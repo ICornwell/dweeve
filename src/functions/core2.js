@@ -1,6 +1,7 @@
 const core = {}
-require('./core').addFunctions(core)
-const pluralizer = require('pluralize')
+import coref from'./core'
+coref.addFunctions(core)
+import pluralizer from 'pluralize'
 
 function addFunctions(context) {
     context['isEven'] = isEven
@@ -33,15 +34,15 @@ function addFunctions(context) {
 }
 
 function isEven(number) {
-    return number % 2 ? false: true;
+    return number % 2 ? false: true
 }
 
 function lower(s) {
-    return String(s).toLowerCase();
+    return String(s).toLowerCase()
 }
 
 function upper(s) {
-    return String(s).toUpperCase();
+    return String(s).toUpperCase()
 }
 
 function isBlank(s) {
@@ -51,15 +52,15 @@ function isBlank(s) {
 function isDate(value) {
     switch (typeof value) {
         case 'number':
-            return true;
+            return true
         case 'string':
-            return !isNaN(Date.parse(value));
+            return !isNaN(Date.parse(value))
         case 'object':
             if (value instanceof Date) {
-                return !isNaN(value.getTime());
+                return !isNaN(value.getTime())
             }
         default:
-            return false;
+            return false
     }
 }
 
@@ -90,7 +91,7 @@ function isInteger(num) {
     }
 }
 
-var __isLeapYear = require('date-fns/isLeapYear')
+import __isLeapYear from 'date-fns/isLeapYear'
 
 function isLeapYear(date){
     return __isLeapYear.default(date)
@@ -104,11 +105,11 @@ function min(list) {
     if (!Array.isArray(list))
         return 0
     try{
-        let agg;
+        let agg
         list.forEach(m => {
             if (agg==undefined || m < agg)
                 agg = m
-        });
+        })
         return agg
     }
     catch (err) {}
@@ -119,15 +120,15 @@ function minBy(list, itemFunc) {
     if (!Array.isArray(list))
         return 0
     try{
-        let agg;
-        let out = null;
+        let agg
+        let out = null
         list.forEach(m => {
             var v = itemFunc(m)
             if (agg==undefined || v < agg) {
                 agg = v
                 out = m
             }
-        });
+        })
         return out
     }
     catch (err) {}
@@ -139,18 +140,18 @@ function match(text, matcher) {
 }
 
 function matches(text, matcher) {
-    return text.match(matcher)!=null;
+    return text.match(matcher)!=null
 }
 
 function max(list) {
     if (!Array.isArray(list))
         return 0
     try{
-        let agg;
+        let agg
         list.forEach(m => {
             if (agg==undefined || m > agg)
                 agg = m
-        });
+        })
         return agg
     }
     catch (err) {}
@@ -161,15 +162,15 @@ function maxBy(list, itemFunc) {
     if (!Array.isArray(list))
         return 0
     try{
-        let agg;
-        let out = null;
+        let agg
+        let out = null
         list.forEach(m => {
             var v = itemFunc(m)
             if (agg==undefined || v > agg) {
                 agg = v
                 out = m
             }
-        });
+        })
         return out
     }
     catch (err) {}
@@ -228,7 +229,7 @@ function to(start, end) {
 
 function reduce(arr, reduceFunc, init)
 {
-    let acc = init;
+    let acc = init
     // was there an initialiser for the accumaltor ?
     if (reduceFunc.toString().match(/\([\w]+,\s*[\w]+\s*=/)==null) {
         if (acc==undefined && arr.length>0){
@@ -245,12 +246,12 @@ function reduce(arr, reduceFunc, init)
 }
 
 function orderBy(arr, orderFunc, isReversed) {
-    compare = (x,y) => {
+    const compare = (x,y) => {
         if (typeof x == 'object' && Object.keys(x)[0].startsWith('__key')) x=Object.values(x)[0]
         if (typeof y == 'object' && Object.keys(y)[0].startsWith('__key')) x=Object.values(y)[0]
-        if (orderFunc(x) > orderFunc(y)) return 1;
-        if (orderFunc(y) > orderFunc(x)) return -1;
-        return 0;
+        if (orderFunc(x) > orderFunc(y)) return 1
+        if (orderFunc(y) > orderFunc(x)) return -1
+        return 0
     }
     let ordered = arr.slice().sort(compare)
     if (isReversed)
@@ -261,14 +262,14 @@ function orderBy(arr, orderFunc, isReversed) {
 
 function pluralize(s)
 {
-    return pluralizer(s);
+    return pluralizer(s)
 }
 
 function sizeOf(arr){
     if (Array.isArray(arr))
         return arr.length
 
-    return 0;
+    return 0
 }
 
 function keySet(obj) {
@@ -284,4 +285,4 @@ function keySet(obj) {
 }
 
 
-module.exports = { addFunctions: addFunctions}
+export default { addFunctions: addFunctions}

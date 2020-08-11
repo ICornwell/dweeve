@@ -4,5 +4,7 @@
         "**/.project": true,
         "**/.settings": true,
         "**/.factorypath": true
-    }
+    },
+    "jestTestExplorer.logpanel": true,
+    "jest.pathToJest": ""
 }

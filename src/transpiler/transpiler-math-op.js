@@ -1,7 +1,7 @@
-const Dictionary = require('dictionaryjs');
+import {Dictionary} from 'dictionaryjs'
 
-let codeGenFor = new Dictionary.Dictionary();
-let opfuncs = new Dictionary.Dictionary();
+let codeGenFor = new Dictionary()
+let opfuncs = new Dictionary()
 
 opfuncs['++'] = stringConcat
 opfuncs['='] = equals
@@ -26,56 +26,56 @@ codeGenFor['un-op'] = (context, code) => { functionHandler(context, code) }
 codeGenFor['is'] = (context, code) => { functionHandler(context, code) }
 
 function functionHandler (context, code)  { 
-    let op = context.node;
+    let op = context.node
     if (op.op)
         opCodeGen(op.lhs, op.op, op.rhs, context, code)
     else
-        context.compiler({parentType: 'math-result', node: op.value, compiler:context.compiler}, code);
+        context.compiler({parentType: 'math-result', node: op.value, compiler:context.compiler}, code)
 }
 
 function opCodeGen(lhs, op, rhs, context,code) {
-    code.addCode('(');
+    code.addCode('(')
     if (opfuncs[op.value]!=undefined)
         opfuncs[op.value](lhs, op, rhs, context, code)
     else
         jsopCodeGen(lhs, op, rhs, context, code)
-    code.addCode(')');
+    code.addCode(')')
 }
 
 function jsopCodeGen(lhs, op, rhs, context,code) {
     emitOperand(lhs, context, code)
-    code.addCode(op.value);
+    code.addCode(op.value)
     emitOperand(rhs, context, code)
 }
 
 function stringConcat(lhs, op, rhs, context,code) {
-    code.addCode('__add(');
+    code.addCode('__add(')
     emitOperand(lhs, context, code)
-    code.addCode(',');
+    code.addCode(',')
     emitOperand(rhs, context, code)
-    code.addCode(')');
+    code.addCode(')')
 }
 
 function equals(lhs, op, rhs, context,code) {
     emitOperand(lhs, context, code)
-    code.addCode('===');
+    code.addCode('===')
     emitOperand(rhs, context, code)
 }
 
 function andLogic(lhs, op, rhs, context,code) {
     emitOperand(lhs, context, code)
-    code.addCode('&&');
+    code.addCode('&&')
     emitOperand(rhs, context, code)
 }
 
 function notLogic(lhs, op, rhs, context,code) {
-    code.addCode('!');
+    code.addCode('!')
     emitOperand(rhs, context, code)
 }
 
 function orLogic(lhs, op, rhs, context,code) {
     emitOperand(lhs, context, code)
-    code.addCode('||');
+    code.addCode('||')
     emitOperand(rhs, context, code)
 }
 
@@ -95,22 +95,22 @@ function isLogic(lhs, op, rhs, context,code) {
 function selector(lhs, op, rhs, context,code) {
     switch (op.type) {
         case "dot":
-            code.addCode('( __doDotOp( (');
-            break;
+            code.addCode('( __doDotOp( (')
+            break
         case "dotstar":
-            code.addCode('( __doDotStarOp( (');
-            break;
+            code.addCode('( __doDotStarOp( (')
+            break
         case "dotdotstar":
-            code.addCode('( __doDotDotStarOp( (');
-            break;
+            code.addCode('( __doDotDotStarOp( (')
+            break
         case "dotdot":
-            code.addCode('( __doDotDotOp( (');
-            break;
+            code.addCode('( __doDotDotOp( (')
+            break
     }
     const lhsExp = emitOperand(lhs, context, code).replace(/'/g, '"').replace(/\n/g, '')
-    code.addCode('), (\'');
+    code.addCode('), (\'')
     const rhsExp = emitOperand(rhs, context, code).replace(/'/g, '"').replace(/\n/g, '')
-    code.addCode('\'), \''+ lhsExp + '\', \'' + rhsExp + '\' ))');
+    code.addCode('\'), \''+ lhsExp + '\', \'' + rhsExp + '\' ))')
     
 }
 
@@ -119,27 +119,25 @@ function emitOperand(operand, context, code) {
     if (operand.op && operand.type!=='as') // 'as' is a bit special, sorry
         opCodeGen(operand.lhs, operand.op, operand.rhs, context, opCode)
     else
-        context.compiler({parentType: 'math-result', node: operand, compiler:context.compiler}, opCode);
+        context.compiler({parentType: 'math-result', node: operand, compiler:context.compiler}, opCode)
 
-    code.addCode(opCode.text);
-    return opCode.text;
+    code.addCode(opCode.text)
+    return opCode.text
 }
 
-function addTranspilerFeatures(preDict, postDict) {
+function addTranspilerFeatures(preDict) {
     for (let k in codeGenFor)
-        preDict[k]=codeGenFor[k];
-    
-        
+        preDict[k]=codeGenFor[k];       
 }
 
 function getSubCode(code)
 {
     let subCode = {text: '', lines: code.lines, doScopes: code.doScopes}
     subCode.addCode = (text) => {
-        subCode.text += text;
-        subCode.lines.push(text);
-    };
-    return subCode;
+        subCode.text += text
+        subCode.lines.push(text)
+    }
+    return subCode
 }
 
-module.exports = {functionHandler: functionHandler, addTranspilerFeatures : addTranspilerFeatures}
+export default {functionHandler: functionHandler, addTranspilerFeatures : addTranspilerFeatures}

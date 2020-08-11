@@ -1,7 +1,7 @@
-const dweeve = require('./src/exe/dweeve')
+import dweeve from './src/exe/dweeve'
 
 function dwrun (dwl, payload, vars, attributes) {
     return dweeve.run(dwl, payload, vars, attributes)
 }
 
-module.exports = dwrun;
+export default dwrun;

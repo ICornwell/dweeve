@@ -1,7 +1,5 @@
 @{%
-const moo = require("moo");
-
-
+const moo = require('moo')
 
 const lexer = moo.compile({
             header: /^\%dw [0-9]+\.[0.9]+$/,
@@ -37,19 +35,19 @@ const lexer = moo.compile({
             lsquare:  '[',
             rsquare:  ']',
         
-    });
+    })
 
     lexer.next = (next => () => {
-        let tok;
+        let tok
         while ((tok = next.call(lexer)) && tok.type === "WS") {}
-        return tok;
-    })(lexer.next);
+        return tok
+    })(lexer.next)
 
 %}
 
 @{%
     const thing = (name, data) => ( { type: name, 
-        data: Array.isArray(data) ? data.filter(e => e !== null && (!Array.isArray(e) || e.length > 0)) : data } );
+        data: Array.isArray(data) ? data.filter(e => e !== null && (!Array.isArray(e) || e.length > 0)) : data } )
 %}
 
 @{%
@@ -58,12 +56,12 @@ const lexer = moo.compile({
             value: function(depth = 1, stack = []) {
                 for (let item of this)
                     if (item instanceof Array && depth > 0)
-                        item.flat(depth - 1, stack);
+                        item.flat(depth - 1, stack)
                     else 
-                        stack.push(item);
-                return stack;
+                        stack.push(item)
+                return stack
             }
-        });
+        })
     }
 %}
 
@@ -189,7 +187,7 @@ l80ops           -> l80ops l1operator operand       {% (data) =>( { type:'dot-op
 @{%
 function newOpData(oldData) {
     if (oldData.value) return oldData.value
-    return oldData;
+    return oldData
 }
 
 %}

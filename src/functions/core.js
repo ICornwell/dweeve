@@ -1,4 +1,4 @@
-const formatn = require('format-number-with-string');
+import formatn from 'format-number-with-string'
 
 function addFunctions(context) {
     context['isOdd'] = isOdd
@@ -27,11 +27,11 @@ function addFunctions(context) {
 }
 
 function isOdd(number) {
-    return number % 2 ? true: false;
+    return number % 2 ? true: false
 }
 
 function concat(a,b) {
-    return a+b;
+    return a+b
 }
 
 function abs(num) {
@@ -42,14 +42,14 @@ function avg(list) {
     if (!Array.isArray(list))
         return 0
     try{
-        let agg=0;
+        let agg=0
         list.forEach(m => {
             agg+=m
-        });
-        return agg/list.length;
+        })
+        return agg/list.length
     }
     catch {}
-    return 0;
+    return 0
 }
 
 function ceil(num) {
@@ -89,12 +89,12 @@ function distinctBy(items, criteria) {
             let candidate = JSON.stringify(criteria(v,k))
             if (!distinctList.includes(candidate)) {
                 distinctList.push(candidate)
-                out.push(v);
+                out.push(v)
             }
         }
     }
 
-    return out;
+    return out
 }
 
 function distinctByKeys(items, criteria) {
@@ -116,12 +116,12 @@ function distinctByKeys(items, criteria) {
             let candidate = JSON.stringify(criteria(v,k))
             if (!distinctList.includes(candidate)) {
                 distinctList.push(candidate)
-                out.push(criteria(v,k));
+                out.push(criteria(v,k))
             }
         }
     }
 
-    return out;
+    return out
 }
 
 function endsWith(s1,s2) {
@@ -145,22 +145,22 @@ function filter(arr, criteria) {
             k = isNaN(parseInt(k)) ? k : parseInt(k)
             try {
             if (criteria(v,k))
-                out.push(v);
+                out.push(v)
             } catch (err) {
                 // errors in filter evaluation will be treated as filter fails, rather than errors
             }
         }
     }
 
-    return out;
+    return out
 }
 
 function filterObject(source, criteria){
     if (source==null || source==undefined)
         throw 'Error: trying to filterObject on a null/undefined object/array'
-    let out = {'__ukey-obj': true};
+    let out = {'__ukey-obj': true}
     let ewl = (source['__ukey-obj'])
-    let idx=0;
+    let idx=0
     for(let key in source) {
         if (key!=='__ukey-obj') {
             let k = key
@@ -172,20 +172,20 @@ function filterObject(source, criteria){
 
             k = isNaN(parseInt(k)) ? k : parseInt(k)
             if (criteria(v,k))
-            out['__key'+idx++]=({[k]:v});
+            out['__key'+idx++]=({[k]:v})
         }
     }
 
-    return out;
+    return out
 }
 
 function find(arr, matcher){
     if (arr==null || arr==undefined)
         throw 'Error: trying to find on a null/undefined object/array'
     if (Array.isArray(arr)){
-        let out = [];
+        let out = []
         let ewl = (arr['__ukey-obj'])
-        let idx=0;
+        let idx=0
         for(let key in arr) {
             if (key!=='__ukey-obj') {
                 let k = key
@@ -197,11 +197,11 @@ function find(arr, matcher){
 
                 k = isNaN(parseInt(k)) ? k : parseInt(k)
                 if (String(v).match(matcher))
-                out.push(k);
+                out.push(k)
             }
         }
 
-        return out;
+        return out
     } else if (matcher.source!==undefined) {
         let str = String(arr)
         let out = []
@@ -213,11 +213,11 @@ function find(arr, matcher){
             let idx = str.indexOf(m, lastidx)
             out.push([idx, idx + m.length ])
             lastidx = idx+1
-        });
-        return out;
+        })
+        return out
     }  else  {
         let str = String(arr)
-        let out = [];
+        let out = []
         let gmatcher = new RegExp(matcher, 'g')
         let ms = String(str).match(gmatcher)
         let lastidx = 0
@@ -225,8 +225,8 @@ function find(arr, matcher){
             let idx = str.indexOf(m, lastidx)
             out.push(idx)
             lastidx = idx+1
-        });
-        return out;
+        })
+        return out
     }
 }
 
@@ -246,11 +246,11 @@ function flatten(source){
         else
             out.push(m)
     })
-    return out;
+    return out
 }
 
 function floor(num) {
-    return Math.floor(num);
+    return Math.floor(num)
 }
 
 function startsWith(s1,s2) {
@@ -272,19 +272,19 @@ function map(source, mapFunc){
             }
 
             k = isNaN(parseInt(k)) ? k : parseInt(k)
-            out.push(mapFunc(v, k));
+            out.push(mapFunc(v, k))
         }
     }
 
-    return out;
+    return out
 }
 
 function mapObject(source, mapFunc){
     if (source==null || source==undefined)
         throw 'Error: trying to mapObject on a null/undefined object/array'
-    let out = {'__ukey-obj': true};
+    let out = {'__ukey-obj': true}
     let ewl = (source['__ukey-obj'])
-    let idx=0;
+    let idx=0
     for(let key in source) {
         if (key!=='__ukey-obj') {
             let k = key
@@ -299,12 +299,12 @@ function mapObject(source, mapFunc){
             if (mr['__ukey-obj'])
                 out['__key'+idx]=mr['__key0']
             else
-                out['__key'+idx]=mr;
+                out['__key'+idx]=mr
             idx++
         }
     }
 
-    return out;
+    return out
 }
 
 function setResourceFileContent(name, text) {
@@ -325,8 +325,8 @@ function __add(lhs, rhs) {
     if (Array.isArray(lhs) && Array.isArray(rhs)) {
         return lhs.concat(rhs)
     } else if (typeof lhs === "object" && typeof rhs === "object") {
-        newObj = {'__ukey-obj' : true}
-        idx=0;
+        const newObj = {'__ukey-obj' : true}
+        let idx=0
         Object.keys(lhs).forEach(k=>{
             if (k.startsWith('__key'))
                 newObj['__key'+idx++] = lhs[k]
@@ -352,9 +352,9 @@ function __add(lhs, rhs) {
 function __indexed(obj, indexer){
     try {
         if (Array.isArray(obj) || obj['__ukey-obj']==undefined)
-            return obj[indexer];
+            return obj[indexer]
         else if (obj['__ukey-obj']) {
-            let outval;
+            let outval
             Object.values(obj).forEach(v=>{
                 if (Object.keys(v)[0]===indexer) {
                     outval = Object.values(v)[0]
@@ -371,4 +371,4 @@ function __format(text, format) {
     return formatn(text, format)
 }
 
-module.exports = { addFunctions: addFunctions, setResourceFileContent: setResourceFileContent}
+export default { addFunctions: addFunctions, setResourceFileContent: setResourceFileContent}

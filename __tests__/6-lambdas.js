@@ -1,117 +1,113 @@
-const dweeve = require("../src/exe/dweeve.js");
-var chai = require('chai');
-var assert = chai.assert;
-var dwassert = require('./dwassert');
-const strip = require('strip-comments');
+import dweeve from '../src/exe/dweeve.js'
 
-const nearley = require("nearley");
-const grammar2 = require("../src/parser/dweeve-grammar2.js");
-const transpiler = require("../src/transpiler/transpiler.js");
-const corefuncs = require("../src/functions/core.js");
+import dwassert from '../__asserts__/dwassert'
+import strip from 'strip-comments'
+
+import corefuncs from '../src/functions/core.js'
 
 describe('Test Lambda expressions', function() {
   it('simple lambda var return kvp obj', function(done) {
         
-    payload = { field1: "Bob", field2: "Jones"}
+    let payload = { field1: "Bob", field2: "Jones"}
 
-    let attributes = {};
-    let vars = {};
+    let attributes = {}
+    let vars = {}
 
     let dwl = `
     %dw 2.0
     var myLambda = (a,b)-> { (a) : b}
     ---
     myLambda("key","value")
-     `;
+     `
 
     let exptected_result = `
     {
       "key": "value"
     }
-    `;
-    let result = dweeve.run(dwl, payload, attributes, vars);
+    `
+    let result = dweeve.run(dwl, payload, attributes, vars)
 
     dwassert.equalwows(result, exptected_result, 'output does not match example')
-    done();
-});
+    done()
+})
 
 it('simple lambda var return simple value', function(done) {
         
-  payload = { field1: "Bob", field2: "Jones"}
+  let payload = { field1: "Bob", field2: "Jones"}
 
-  let attributes = {};
-  let vars = {};
+  let attributes = {}
+  let vars = {}
 
   let dwl = `
   %dw 2.0
   var myLambda = (a,b)-> (a+b)
   ---
   { x: myLambda(3, 4) }
-   `;
+   `
 
   let exptected_result = `
   {
     "x": 7
   }
-  `;
+  `
 
-  let result = dweeve.run(dwl, payload, attributes, vars);
+  let result = dweeve.run(dwl, payload, attributes, vars)
 
   dwassert.equalwows(result, exptected_result, 'output does not match example')
-  done();
-});
+  done()
+})
 
 it('anonymous lambda var with $, $$', function(done) {
         
-  payload = { field1: "Bob", field2: "Jones"}
+  let payload = { field1: "Bob", field2: "Jones"}
 
-  let attributes = {};
-  let vars = {};
+  let attributes = {}
+  let vars = {}
 
   let dwl = `
   %dw 2.0
   fun filt(data) = data filter ($ = "abc")
   ---
   filt( {"a":"abc", "b":"def"})
-   `;
+   `
 
   let exptected_result = `
   [ "abc" ]
-  `;
+  `
 
-  let result = dweeve.run(dwl, payload, attributes, vars);
+  let result = dweeve.run(dwl, payload, attributes, vars)
 
   dwassert.equalwows(result, exptected_result, 'output does not match example')
-  done();
-});
+  done()
+})
 
 it('anonymous lambda var with $, $$, deep matching', function(done) {
         
-  payload = { field1: "Bob", field2: "Jones"}
+  let payload = { field1: "Bob", field2: "Jones"}
 
-  let attributes = {};
-  let vars = {};
+  let attributes = {}
+  let vars = {}
 
   let dwl = `
   %dw 2.0
   fun filt(data) = data filter ($.x = "abc")
   ---
   filt( {"a":{"x":"abc", "y":"xyz"}, "b":{"x":"def", "y":"lmn"}})
-   `;
+   `
 
   let exptected_result = `
   [ {"x":"abc", "y":"xyz"} ]
-  `;
+  `
 
-  let result = dweeve.run(dwl, payload, attributes, vars);
+  let result = dweeve.run(dwl, payload, attributes, vars)
 
   dwassert.equalwows(result, exptected_result, 'output does not match example')
-  done();
-});
+  done()
+})
 
 it('interesting recursive filtering and resource usings code', function(done) {
         
-  payload = `
+  let payload = `
   {
     "command":{
       "version":"1.0.0",
@@ -275,8 +271,8 @@ it('interesting recursive filtering and resource usings code', function(done) {
   }
   `
 
-  let attributes = {};
-  let vars = {};
+  let attributes = {}
+  let vars = {}
 
  
 
@@ -317,7 +313,7 @@ it('interesting recursive filtering and resource usings code', function(done) {
     (findObjectContent(firstViewElement.object, firstViewElement.elementRef)),
     (if (firstViewElement.childObjects != null) renderChildObjects(firstViewElement.childObjects) else {})
       //relation: findRelation(payload.command.response.relation, "PH001", policyHeaderView.view.viewElement.childObjects.viewElement[0].relationFromParent),
-  } `;
+  } `
 
   let exptected_result = `
   {
@@ -383,12 +379,12 @@ it('interesting recursive filtering and resource usings code', function(done) {
       }
     ]
   }
-  `;
+  `
 
   dwl = strip(dwl)
   
-  //const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar2));
-  //parser.feed(dwl.trim());
+  //const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar2))
+  //parser.feed(dwl.trim())
 
   //if (parser.results.length === 0)
   //throw "Dweeve parser found no dweeve!"
@@ -396,19 +392,19 @@ it('interesting recursive filtering and resource usings code', function(done) {
   //if (parser.results.length > 1)
   //throw "Dweeve parser found more than one intepretation of the dweeve!"
  corefuncs.setResourceFileContent("classpath://dw/data/view-metadata-policyHeader.json", rf)
- let result = dweeve.run(dwl, payload, attributes, vars);
+ let result = dweeve.run(dwl, payload, attributes, vars)
 
  dwassert.equalwows(result, exptected_result, 'output does not match example')
-  done();
-});
+  done()
+})
 
 
 it('object with bracketed expression as key/val members generator', function(done) {
         
-  payload = { field1: "Bob", field2: "Jones"}
+  let payload = { field1: "Bob", field2: "Jones"}
 
-  let attributes = {};
-  let vars = {};
+  let attributes = {}
+  let vars = {}
 
  
 
@@ -418,16 +414,16 @@ it('object with bracketed expression as key/val members generator', function(don
   fun getmoreContent() = ["cat","dog","mouse"] map  { ("item"++$$): $}
   ---
   { "a" : "abc", (getmoreContent())}
-   `;
+   `
 
   let exptected_result = `
  { "a": "abc", "item0": "cat", "item1" : "dog", "item2" : "mouse"}
-  `;
+  `
 
-  let result = dweeve.run(dwl, payload, attributes, vars);
+  let result = dweeve.run(dwl, payload, attributes, vars)
 
   dwassert.equalwows(result, exptected_result, 'output does not match example')
-  done();
-});
+  done()
+})
 }
 )

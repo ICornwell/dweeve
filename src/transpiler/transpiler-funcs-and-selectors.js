@@ -1,55 +1,39 @@
-const Dictionary = require('dictionaryjs');
+import {Dictionary} from 'dictionaryjs'
 
-let codeGenFor = new Dictionary.Dictionary();
-let codeGenAfter = new Dictionary.Dictionary();
-
-
+let codeGenFor = new Dictionary()
 
  codeGenFor['fun-call'] = (context, code) => { 
-    let op = context.node;
+    let op = context.node
     if (op.fun.type)
         context.compiler({node: op.fun, compiler:context.compiler}, code)
     else
         code.addCode(op.fun)
 
-    code.addCode('(');
+    code.addCode('(')
     if (op.args!==null && Array.isArray(op.args)) {
-        let idx=0;
+        let idx=0
         op.args.forEach(arg => {
             if (isAnonymousLambdaExpression(arg) && idx > 0) // only for rhs lambdas, hence idx > 0!
             // otherwise [x,y,z] filter ($ >3) map ($++'!') picks up the '$' on the filter rhs and assume map lhs needs the anonymous treatment
-                buildLamda(arg, context, code);
+                buildLamda(arg, context, code)
             else if (typeof arg === 'boolean')
                 code.addCode(arg.toString())
             else
-                context.compiler({node: arg, compiler:context.compiler}, code);
+                context.compiler({node: arg, compiler:context.compiler}, code)
             if (++idx<op.args.length)
-                code.addCode(', ');
-        });
+                code.addCode(', ')
+        })
     }
-    code.addCode(')');
-    return false;
- };
-
- function buildLamda(expression, context, code){
-//TODO: delete this - turns out we didn't need to tr to be so clever!
-//    var args = getAllIdentifiersUsedInExpression(expression).filter(id=>id.match(/[$]+/)).filter(onlyUnique);
-//    code.addCode('(');
-//    let idx=1;
-//    args.forEach(arg => {
-//        code.addCode(arg);
-//        if (idx++<args.length)
-//           code.addCode(', ');
-//    });
-//   code.addCode(') => (');
-    code.addCode('($,$$,$$$) => (');
-    context.compiler({parentType: 'lambda', node: expression, compiler:context.compiler}, code);
-    code.addCode(')\n');
+    code.addCode(')')
+    return false
  }
 
- function onlyUnique(value, index, self) { 
-    return self.indexOf(value) === index;
-}
+ function buildLamda(expression, context, code){
+
+    code.addCode('($,$$,$$$) => (')
+    context.compiler({parentType: 'lambda', node: expression, compiler:context.compiler}, code)
+    code.addCode(')\n')
+ }
 
  function isAnonymousLambdaExpression(node) {
      //TODO: add check that we don't already have a fully expressed lambda, just using $ notation
@@ -58,13 +42,13 @@ let codeGenAfter = new Dictionary.Dictionary();
  }
 
  function getAllIdentifiersUsedInExpression(expression){
-    let identifiers = [];
+    let identifiers = []
     recurseGetAllIdentifiersUsedInExpression(expression, identifiers)
-    return identifiers;
+    return identifiers
  }
 
  function recurseGetAllIdentifiersUsedInExpression(expPart, identifiers){
-    if (expPart==null || expPart==undefined) return;
+    if (expPart==null || expPart==undefined) return
     if (expPart.type && expPart.type==='identifier') {
         identifiers.push(expPart.ident.value)
         return
@@ -89,11 +73,9 @@ let codeGenAfter = new Dictionary.Dictionary();
  }
 
 
-function addTranspilerFeatures(preDict, postDict) {
+function addTranspilerFeatures(preDict) {
     for (let k in codeGenFor)
-        preDict[k]=codeGenFor[k];
-    for (let k in codeGenAfter)
-        postDict[k]=codeGenAfter[k];    
+        preDict[k]=codeGenFor[k];   
 }
 
-module.exports = {addTranspilerFeatures : addTranspilerFeatures}
+export default {addTranspilerFeatures : addTranspilerFeatures}

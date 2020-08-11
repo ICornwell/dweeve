@@ -8,7 +8,7 @@ function addFunctions(context) {
 }
 
 function __getIdentifierValue(identifier){
-    return identifier;
+    return identifier
 }
 
 function __doDotOp(lhs, rhs, lhsName, rhsName) {
@@ -19,49 +19,49 @@ function __doDotOp(lhs, rhs, lhsName, rhsName) {
         if ( !Array.isArray(lhs)) {
             if (lhs['__ukey-obj']){
                 let r = Object.values(lhs).filter(v=>(typeof v === 'object')).find(kvp=>kvp[rhs])[rhs]
-                return r;
+                return r
             } else {
                 let r = lhs[rhs]; 
                 if (r==undefined)
                     throw 'undefined'
-                return r;
+                return r
             }
         } else {
             let r = lhs.filter(m=>m['__ukey-obj'] || m[rhs]!==undefined)
                 .map(kvps=> {
                     if (kvps['__ukey-obj']) {
-                        return Object.values(kvps).filter(v=>(typeof v === 'object')).find(kvp=>kvp[rhs])[rhs];
+                        return Object.values(kvps).filter(v=>(typeof v === 'object')).find(kvp=>kvp[rhs])[rhs]
                     } else {
-                        return kvps[rhs];
+                        return kvps[rhs]
                     }
-                });
-            return r;
+                })
+            return r
         }
      } catch (ex) {
-          return null;
+          return null
         //  throw 'Can not reference member: "' + rhsName + '" of "' + lhsName + '", it is not defined / present.'; 
      } 
 }
 
 function __doDotStarOp(lhs, rhs, lhsName, rhsName) {
-    lhs = convertJsonObjsToArray(lhs);
+    lhs = convertJsonObjsToArray(lhs)
     try {
         let ms = lhs.filter(m=>m[rhs]!==undefined 
                || (m['__ukey-obj'] && Object.values(m).find(o=>Object.keys(o)[0]===rhs)!=undefined))
 
-        let r = ms.map(kvps=> kvps[rhs] ? kvps[rhs] : Object.values(kvps).find(o=>Object.keys(o)[0]===rhs)[rhs]);
+        let r = ms.map(kvps=> kvps[rhs] ? kvps[rhs] : Object.values(kvps).find(o=>Object.keys(o)[0]===rhs)[rhs])
 
-            return r;
+            return r
      } catch (ex) {
          return null; 
      } 
 }
 
 function __doDotDotStarOp(lhs,rhs, lhsName, rhsName) {
-//    lhs = convertJsonObjsToArray(lhs);
+//    lhs = convertJsonObjsToArray(lhs)
     try {
         let r = getDescendentValues(lhs, rhs)
-        return r;
+        return r
     } catch (ex) {
         return null; 
     } 
@@ -84,10 +84,10 @@ function getDescendentValues(obj, key){
 }
 
 function __doDotDotOp(lhs,rhs, lhsName, rhsName) {
-//    lhs = convertJsonObjsToArray(lhs);
+//    lhs = convertJsonObjsToArray(lhs)
     try {
         let r = getFirstDescendentValue(lhs, rhs)
-        return r;
+        return r
     } catch (ex) {
         return null; 
     }     
@@ -101,7 +101,7 @@ function getFirstDescendentValue(obj, key){
         let kvp = dewrapKeyedObj(obj, k)
         if (kvp.key === key) {
             vs.push(kvp.val)
-            break;
+            break
         }
     }
     for (let k in obj) {
@@ -157,14 +157,14 @@ function __flattenDynamicContent(obj) {
 
 function convertJsonObjsToArray(lhs) {
     if (!Array.isArray(lhs) && lhs['__ukey-obj'])
-        lhs = Object.values(lhs);
+        lhs = Object.values(lhs)
     else if (!Array.isArray(lhs) && !lhs['__ukey-obj']) {
-        arr = [];
+        arr = []
         for (let k in lhs)
-            arr.push({ [k]: lhs[k] });
-        lhs = arr;
+            arr.push({ [k]: lhs[k] })
+        lhs = arr
     }
-    return lhs;
+    return lhs
 }
 
-module.exports = { addFunctions: addFunctions }
+export default { addFunctions: addFunctions }

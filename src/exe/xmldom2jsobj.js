@@ -1,48 +1,48 @@
 function toJsObj(node){
-    let nodeType = getNodeType(node);
-    console.log(nodeType);
+    let nodeType = getNodeType(node)
+    console.log(nodeType)
     if (nodeType==='Document') {
-        let nl = { };
+        let nl = { }
         for (let idx=0;idx<node.childNodes.length;idx++){
-            let ce = node.childNodes.item(idx);
+            let ce = node.childNodes.item(idx)
             if (getNodeType(ce)==='Element') {
-                nl = toJsObj(ce);
+                nl = toJsObj(ce)
             }
         }
-        return nl;
+        return nl
     }
     if (nodeType==='NodeList') {
-        let nl = { '__ukey-obj' : true};
+        let nl = { '__ukey-obj' : true}
         for (let idx=0;idx<node.length;idx++){
-            let ce = node.item(idx);
+            let ce = node.item(idx)
             if (getNodeType(ce)==='Element') {
-                let js = toJsObj(ce);
+                let js = toJsObj(ce)
                 nl['__key'+idx]=js
             }
         }
-        return nl;
+        return nl
     }
     if (isTextOnlyElement(node)) {
-        return ( { [node.nodeName]: numberIfPossible(node.textContent) } );
+        return ( { [node.nodeName]: numberIfPossible(node.textContent) } )
     }
     if (!hasText(node)) {
-        return ({ [node.nodeName]: toJsObj(node.childNodes) });
+        return ({ [node.nodeName]: toJsObj(node.childNodes) })
     } else {
-        let inner = toJsObj(node.childNodes);
-        let ewl = { '__ukey-obj' : true};
+        let inner = toJsObj(node.childNodes)
+        let ewl = { '__ukey-obj' : true}
         ewl["__key0"]= { "__text" : nodeOwnText(node) }; 
         for (let idx=1;idx<=Object.values(inner).length;idx++)
             if (Object.keys(inner)[idx-1].startsWith('__key'))
                 ewl['__key'+idx]=Object.values(inner)[idx-1]; 
         
-            return { [node.nodeName]: ewl };
+            return { [node.nodeName]: ewl }
     }
 }
 
 function numberIfPossible(text){
-    if (!isNaN(parseFloat(text))) return parseFloat(text);
-    if (text==='true') return true;
-    if (text==='false') return false;
+    if (!isNaN(parseFloat(text))) return parseFloat(text)
+    if (text==='true') return true
+    if (text==='false') return false
 
     return text
 }
@@ -57,28 +57,28 @@ function getNodeType(node){
 }
 
 function hasText(node) {
-    if (node.childNodes===undefined || node.childNodes===null || node.childNodes.length==0) return false;
+    if (node.childNodes===undefined || node.childNodes===null || node.childNodes.length==0) return false
     for (let idx=0;idx<node.childNodes.length;idx++)
         if (node.childNodes.item(idx).constructor.name==="Text"
-            && !(/^\s*$/.test(node.childNodes.item(idx).textContent))) return true;
+            && !(/^\s*$/.test(node.childNodes.item(idx).textContent))) return true
 
-    return false;
+    return false
 }
 
 function nodeOwnText(node) {
-    if (node.childNodes===undefined || node.childNodes===null || node.childNodes.length==0) return "";
+    if (node.childNodes===undefined || node.childNodes===null || node.childNodes.length==0) return ""
     for (let idx=0;idx<node.childNodes.length;idx++)
         if (node.childNodes.item(idx).constructor.name==="Text"
             && !(/^\s*$/.test(node.childNodes.item(idx).textContent)))
-             return node.childNodes.item(idx).textContent;
+             return node.childNodes.item(idx).textContent
 
-    return "";
+    return ""
 }
 
 function isTextOnlyElement(node){
     return (getNodeType(node)==='Element' && node.childNodes.length==1
-     && node.firstChild.constructor.name==='Text');
+     && node.firstChild.constructor.name==='Text')
 }
 
 
-module.exports = {toJsObj: toJsObj}
+export default {toJsObj: toJsObj}

@@ -1,15 +1,15 @@
-const dweeve = require("../src/exe/dweeve.js");
-var chai = require('chai');
-var assert = chai.assert;
-var dwassert = require('./dwassert');
+import dweeve from '../src/exe/dweeve.js'
+import chai from 'chai'
+var assert = chai.assert
+import dwassert from '../__asserts__/dwassert'
 
 describe('Test do scopes', function() {
   it('var x = do...', function(done) {
         
-    payload = ''
+    let payload = ''
 
-    let attributes = {};
-    let vars = {};
+    let attributes = {}
+    let vars = {}
 
     let dwl = `
     %dw 2.0
@@ -21,26 +21,26 @@ describe('Test do scopes', function() {
       }
       ---
       { result: myVar }
-    `;
+    `
 
     let exptected_result = `
     {
       "result": "dweeve"
     }
-    `;
+    `
 
-    let result = dweeve.run(dwl, payload, attributes, vars);
+    let result = dweeve.run(dwl, payload, attributes, vars)
 
     dwassert.equalwows(result, exptected_result, 'output does not match example')
-    done();
-});
+    done()
+})
 
 it('fun x() = do...', function(done) {
         
-  payload = ''
+  let payload = ''
 
-  let attributes = {};
-  let vars = {};
+  let attributes = {}
+  let vars = {}
 
   let dwl = `
   %dw 2.0
@@ -52,26 +52,26 @@ it('fun x() = do...', function(done) {
   }
   ---
   { result: myVar }
-  `;
+  `
 
   let exptected_result = `
   {
     "result": "dweeve"
   }
-  `;
+  `
 
-  let result = dweeve.run(dwl, payload, attributes, vars);
+  let result = dweeve.run(dwl, payload, attributes, vars)
 
   dwassert.equalwows(result, exptected_result, 'output does not match example')
-  done();
-});
+  done()
+})
 
 it('fun x(arg) = do...', function(done) {
         
-  payload = ''
+  let payload = ''
 
-  let attributes = {};
-  let vars = {};
+  let attributes = {}
+  let vars = {}
 
   let dwl = `
   %dw 2.0
@@ -83,19 +83,19 @@ it('fun x(arg) = do...', function(done) {
   }
   ---
   { result: test(" Bar") }
-  `;
+  `
 
   let exptected_result = `
   {
     "result": "Foo Bar"
   }
-  `;
+  `
 
-  let result = dweeve.run(dwl, payload, attributes, vars);
+  let result = dweeve.run(dwl, payload, attributes, vars)
 
   dwassert.equalwows(result, exptected_result, 'output does not match example')
-  done();
-});
+  done()
+})
 
 }
 )

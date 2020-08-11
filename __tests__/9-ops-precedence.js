@@ -1,15 +1,15 @@
-const dweeve = require("../src/exe/dweeve.js");
-var chai = require('chai');
-var assert = chai.assert;
-var dwassert = require('./dwassert');
+import dweeve from '../src/exe/dweeve.js'
+import chai from 'chai'
+var assert = chai.assert
+import dwassert from '../__asserts__/dwassert'
 
 describe('operators and precedence', function() {
   it('grammar tests', function(done) {
         
-    payload = ''
+    let payload = ''
 
-    let attributes = {};
-    let vars = {};
+    let attributes = {}
+    let vars = {}
 
     let dwl = `
     %dw 2.0
@@ -21,17 +21,17 @@ describe('operators and precedence', function() {
 
     ---
     { a: a, b: b, c: c}
-     `;
+     `
 
     let exptected_result = `
     { "a": 3, "b": 7, "c": 7}
-    `;
+    `
 
-    let result = dweeve.run(dwl, payload, attributes, vars);
+    let result = dweeve.run(dwl, payload, attributes, vars)
 
     dwassert.equalwows(result, exptected_result, 'output does not match example')
-    done();
+    done()
 
    
-});
+})
 })

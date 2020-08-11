@@ -1,20 +1,20 @@
-const dweeve = require("../src/exe/dweeve.js");
-var chai = require('chai');
-var assert = chai.assert;
-var dwassert = require('./dwassert');
+import dweeve from '../src/exe/dweeve.js'
+import chai from 'chai'
+var assert = chai.assert
+import dwassert from '../__asserts__/dwassert'
 
 describe('Test matching', function() {
   it('mixed examples, all match types', function(done) {
         
-    payload = { field1: "Bob", field2: "Jones"}
+    let payload = { field1: "Bob", field2: "Jones"}
 
-    let attributes = {};
-    let vars = {};
+    let attributes = {}
+    let vars = {}
     let dwl1 = `
      myInput.string match {
         case str if str == "Emiliano" -> str ++ " Lesende"
      }
-     `;
+     `
     let dwl = `
     %dw 2.0
    
@@ -70,7 +70,7 @@ describe('Test matching', function() {
         case word: "bang" ->  word ++ " was matched"
       }
     }
-    `;
+    `
 
     let exptected_result = `
     {
@@ -82,13 +82,13 @@ describe('Test matching', function() {
       "f": "is bob!",
       "g": "bang was matched"
     }
-    `;
+    `
 
-    let result = dweeve.run(dwl, payload, attributes, vars);
+    let result = dweeve.run(dwl, payload, attributes, vars)
 
     dwassert.equalwows(result, exptected_result, 'output does not match example')
-    done();
-});
+    done()
+})
 
 }
 )

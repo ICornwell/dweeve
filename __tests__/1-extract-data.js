@@ -1,13 +1,13 @@
-const dweeve = require("../src/exe/dweeve.js");
-var chai = require('chai');
-var assert = chai.assert;
-var dwassert = require('./dwassert');
+import dweeve from '../src/exe/dweeve.js'
+import chai from 'chai'
+var assert = chai.assert
+import dwassert from '../__asserts__/dwassert'
 
 describe('Extract-Data', function() {
     it('extract named item from object and array vars', function(done) {
-        let payload = {};
-        let attributes = {};
-        let vars = {};
+        let payload = {}
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
@@ -19,26 +19,26 @@ describe('Extract-Data', function() {
             selectingValueUsingKeyInObject : myObject.name,
             selectingValueUsingKeyOfObjectInArray : myArray.name
         }
-        `;
+        `
 
         let exptected_result = `
         {
             "selectingValueUsingKeyInObject": "somebody",
             "selectingValueUsingKeyOfObjectInArray": [ "somebody" ]
         }
-        `;
+        `
 
-        let result = dweeve.run(dwl, payload, attributes, vars);
+        let result = dweeve.run(dwl, payload, attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-    //    assert.equal(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example');
-        done();
-    });
+    //    assert.equal(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example')
+        done()
+    })
 
     it('extract value from var by key return in object with a key', function(done) {
-        let payload = {};
-        let attributes = {};
-        let vars = {};
+        let payload = {}
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
@@ -46,71 +46,71 @@ describe('Extract-Data', function() {
         output application/json
         ---
         { myObjectExample : myObject.user }
-        `;
+        `
 
         let exptected_result = `
         { "myObjectExample": "a" }
-        `;
+        `
 
-        let result = dweeve.run(dwl, payload, attributes, vars);
+        let result = dweeve.run(dwl, payload, attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-        done();
-    });
+        done()
+    })
 
     it('extract value from values from xml', function(done) {
         let payload = `
         <users>
             <user>Mariano</user>
         </users>
-        `;
-        let attributes = {};
-        let vars = {};
+        `
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
         output application/json
         ---
         payload.users
-        `;
+        `
 
         let exptected_result = `
         {
             "user": "Mariano"
           }
-        `;
+        `
 
-        let result = dweeve.run(dwl, payload, attributes, vars);
+        let result = dweeve.run(dwl, payload, attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-        done();
-    });
+        done()
+    })
 
     it('extract simple value from values from payload with .', function(done) {
         let payload = { myObj : {
             item1: "bob",
             item2: "jim",
             item3: "jane"
-        }};
-        let attributes = {};
-        let vars = {};
+        }}
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
         output application/json
         ---
         payload.myObj.item2
-        `;
+        `
 
         let exptected_result = `
         "jim"
-        `;
+        `
 
-        let result = dweeve.run(dwl, payload, attributes, vars);
+        let result = dweeve.run(dwl, payload, attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-        done();
-    });
+        done()
+    })
 
     it('extract simple value from values from payload array with .', function(done) {
         let payload = { myObj :  [
@@ -118,26 +118,26 @@ describe('Extract-Data', function() {
             { item2: "jim" },
             { item3: "jane"}
             ]
-        };
-        let attributes = {};
-        let vars = {};
+        }
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
         output application/json
         ---
         payload.myObj.item2
-        `;
+        `
 
         let exptected_result = `
         [ "jim" ]
-        `;
+        `
 
-        let result = dweeve.run(dwl, payload, attributes, vars);
+        let result = dweeve.run(dwl, payload, attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-       done();
-    });
+       done()
+    })
 
     it('extract multiple values from values from payload array with .', function(done) {
         let payload = { myObj :  [
@@ -145,31 +145,31 @@ describe('Extract-Data', function() {
             { item2: "jim" },
             { item1: "jane"}
             ]
-        };
-        let attributes = {};
-        let vars = {};
+        }
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
         output application/json
         ---
         payload.myObj.item1
-        `;
+        `
 
         let exptected_result = `
         [ "bob", "jane" ]
-        `;
+        `
 
-        let result = dweeve.run(dwl, payload, attributes, vars);
+        let result = dweeve.run(dwl, payload, attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-        done();
-    });
+        done()
+    })
 
     it('extract multiple objects from values from payload array with .', function(done) {
-        let payload = { };
-        let attributes = {};
-        let vars = {};
+        let payload = { }
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
@@ -210,7 +210,7 @@ describe('Extract-Data', function() {
         output application/json
         ---
         myData.people.person.address.street
-        `;
+        `
 
         let exptected_result = `
         [
@@ -223,13 +223,13 @@ describe('Extract-Data', function() {
               "number": 323
             }
           ]
-        `;
+        `
 
-        let result = dweeve.run(dwl, payload, attributes, vars);
+        let result = dweeve.run(dwl, payload, attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-        done();
-    });
+        done()
+    })
 
     it('extract from mixed cpntent Xml', function(done) {
         let payload = `
@@ -238,9 +238,9 @@ describe('Extract-Data', function() {
             <user>b</user>
             <user>c</user>
         </users>
-        `;
-        let attributes = {};
-        let vars = {};
+        `
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
@@ -249,7 +249,7 @@ describe('Extract-Data', function() {
         ---
 
         payload.users
-        `;
+        `
 
         let exptected_result = `
         {
@@ -260,13 +260,13 @@ describe('Extract-Data', function() {
             "user": "b",
             "user": "c"
           }
-        `;
+        `
 
-        let result = dweeve.run(dwl, payload, attributes, vars);
+        let result = dweeve.run(dwl, payload, attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-        done();
-    });
+        done()
+    })
 
     it('extract from mixed content Xml, first value only with .', function(done) {
         let payload = `
@@ -275,9 +275,9 @@ describe('Extract-Data', function() {
             <user>b</user>
             <user>c</user>
         </users>
-        `;
-        let attributes = {};
-        let vars = {};
+        `
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
@@ -286,20 +286,20 @@ describe('Extract-Data', function() {
         ---
 
         payload.users.user
-        `;
+        `
 
         let exptected_result = `
         {
             "__text": "a",
             "inner": "innertest"
         }
-        `;
+        `
 
-        let result = dweeve.run(dwl, payload, attributes, vars);
+        let result = dweeve.run(dwl, payload, attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-        done();
-    });
+        done()
+    })
 
     it('extract from mixed content Xml, all values with .*', function(done) {
         let payload = `
@@ -308,9 +308,9 @@ describe('Extract-Data', function() {
             <user>b</user>
             <user>c</user>
         </users>
-        `;
-        let attributes = {};
-        let vars = {};
+        `
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
@@ -319,7 +319,7 @@ describe('Extract-Data', function() {
         ---
 
         payload.users.*user
-        `;
+        `
 
         let exptected_result = `
         [
@@ -330,18 +330,18 @@ describe('Extract-Data', function() {
             "b",
             "c"
           ]
-        `;
+        `
 
-        let result = dweeve.run(dwl, payload, attributes, vars);
+        let result = dweeve.run(dwl, payload, attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-        done();
-    });
+        done()
+    })
 
     it('extract from json (non-unique keys), all values with .*', function(done) {
         
-        let attributes = {};
-        let vars = {};
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
@@ -357,7 +357,7 @@ describe('Extract-Data', function() {
         ---
 
         payload.users.*user
-        `;
+        `
 
         let exptected_result = `
         [
@@ -371,18 +371,18 @@ describe('Extract-Data', function() {
               "name": "c"
             }
           ]
-        `;
+        `
 
-        let result = dweeve.run(dwl, '', attributes, vars);
+        let result = dweeve.run(dwl, '', attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-        done();
-    });
+        done()
+    })
 
     it('extract from json (array), all values with .*', function(done) {
         
-        let attributes = {};
-        let vars = {};
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
@@ -398,7 +398,7 @@ describe('Extract-Data', function() {
         ---
 
         payload.users.*user
-        `;
+        `
 
         let exptected_result = `
         [
@@ -406,18 +406,18 @@ describe('Extract-Data', function() {
             "b",
             "c"
           ]
-        `;
+        `
 
-        let result = dweeve.run(dwl, '', attributes, vars);
+        let result = dweeve.run(dwl, '', attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-        done();
-    });
+        done()
+    })
 
     it('extract from json all values with ..*', function(done) {
         
-        let attributes = {};
-        let vars = {};
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
@@ -433,7 +433,7 @@ describe('Extract-Data', function() {
         ---
 
         payload.users..*name
-        `;
+        `
 
         let exptected_result = `
         [
@@ -441,18 +441,18 @@ describe('Extract-Data', function() {
             "b",
             "c"
           ]
-        `;
+        `
 
-        let result = dweeve.run(dwl, '', attributes, vars);
+        let result = dweeve.run(dwl, '', attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-        done();
-    });
+        done()
+    })
 
     it('extract from json all values with ..* - this example fails in dataweave 2.0 - works as expected here', function(done) {
         
-        let attributes = {};
-        let vars = {};
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
@@ -468,7 +468,7 @@ describe('Extract-Data', function() {
         ---
 
         payload.users..*name
-        `;
+        `
 
         let exptected_result = `
         [
@@ -477,18 +477,18 @@ describe('Extract-Data', function() {
             "c",
             "d"
           ]
-        `;
+        `
 
-        let result = dweeve.run(dwl, '', attributes, vars);
+        let result = dweeve.run(dwl, '', attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-        done();
-    });
+        done()
+    })
 
     it('extract from json all values with ..* - order is important -down befor in 2.0!', function(done) {
         
-        let attributes = {};
-        let vars = {};
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
@@ -505,7 +505,7 @@ describe('Extract-Data', function() {
         ---
 
         payload.users..*name
-        `;
+        `
 
         let exptected_result = `
         [
@@ -514,22 +514,22 @@ describe('Extract-Data', function() {
             "b",
             "c"
           ]
-        `;
+        `
 
-        let result = dweeve.run(dwl, '', attributes, vars);
+        let result = dweeve.run(dwl, '', attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-        done();
-    });
+        done()
+    })
 
     it('extract from xml all values with ..* ', function(done) {
-        payload = `<users>
+        let payload = `<users>
                         <user someatttr= "boo">b<inner anAttr="bar">innertest</inner></user>
                         <user>b</user>
                         <user>c</user>
                     </users>`
-        let attributes = {};
-        let vars = {};
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
@@ -537,7 +537,7 @@ describe('Extract-Data', function() {
         ---
 
         payload..*user
-        `;
+        `
 
         let exptected_result = `
         [
@@ -548,16 +548,16 @@ describe('Extract-Data', function() {
             "b",
             "c"
           ]
-        `;
+        `
 
-        let result = dweeve.run(dwl, payload, attributes, vars);
+        let result = dweeve.run(dwl, payload, attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-        done();
-    });
+        done()
+    })
 
     it('extract all from xml with depth all values with ..* ', function(done) {
-        payload = `<users>
+        let payload = `<users>
                         <user>a</user>
                         <user>b</user>
                         <user>c</user>
@@ -565,8 +565,8 @@ describe('Extract-Data', function() {
                             <user>d</user>
                         </deep>
                     </users>`
-        let attributes = {};
-        let vars = {};
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
@@ -574,7 +574,7 @@ describe('Extract-Data', function() {
         ---
 
         payload..*user
-        `;
+        `
 
         let exptected_result = `
         [
@@ -583,16 +583,16 @@ describe('Extract-Data', function() {
             "c",
             "d"
           ]
-        `;
+        `
 
-        let result = dweeve.run(dwl, payload, attributes, vars);
+        let result = dweeve.run(dwl, payload, attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-        done();
-    });
+        done()
+    })
 
     it('extract firsts from xml with depth all values with .. ', function(done) {
-        payload = `<users>
+        let payload = `<users>
                         <user>a</user>
                         <user>b</user>
                         <user>c</user>
@@ -600,8 +600,8 @@ describe('Extract-Data', function() {
                             <user>d</user>
                         </deep>
                     </users>`
-        let attributes = {};
-        let vars = {};
+        let attributes = {}
+        let vars = {}
 
         let dwl = `
         %dw 2.0
@@ -609,18 +609,18 @@ describe('Extract-Data', function() {
         ---
 
         payload..user
-        `;
+        `
 
         let exptected_result = `
         [
             "a",
             "d"
           ]
-        `;
+        `
 
-        let result = dweeve.run(dwl, payload, attributes, vars);
+        let result = dweeve.run(dwl, payload, attributes, vars)
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
-        done();
-    });
+        done()
+    })
 } )

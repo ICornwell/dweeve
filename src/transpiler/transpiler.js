@@ -1,42 +1,41 @@
-const Dictionary = require('dictionaryjs');
-const HeaderFeatures = require('./transpiler-header-decs')
-const ConditionalsFeatures = require('./transpiler-conditionals')
-const FuncAndSelectorFeatures = require('./transpiler-funcs-and-selectors')
-const ExpressionFeatures = require('./transpiler-expressions')
-const DoScopeFeatures = require('./transpiler-do-scope')
-const MathOpFeatures = require('./transpiler-math-op')
+import {Dictionary} from 'dictionaryjs'
+import HeaderFeatures from './transpiler-header-decs'
+import ConditionalsFeatures from './transpiler-conditionals'
+import FuncAndSelectorFeatures from './transpiler-funcs-and-selectors'
+import ExpressionFeatures from './transpiler-expressions'
+import DoScopeFeatures from './transpiler-do-scope'
+import MathOpFeatures from './transpiler-math-op'
 
-let codeGenFor = new Dictionary.Dictionary();
-let codeGenAfter = new Dictionary.Dictionary();
+let codeGenFor = new Dictionary()
 
-HeaderFeatures.addTranspilerFeatures(codeGenFor, codeGenAfter);
-ConditionalsFeatures.addTranspilerFeatures(codeGenFor, codeGenAfter);
-FuncAndSelectorFeatures.addTranspilerFeatures(codeGenFor, codeGenAfter);
-ExpressionFeatures.addTranspilerFeatures(codeGenFor, codeGenAfter);
-DoScopeFeatures.addTranspilerFeatures(codeGenFor, codeGenAfter);
-MathOpFeatures.addTranspilerFeatures(codeGenFor, codeGenAfter);
+HeaderFeatures.addTranspilerFeatures(codeGenFor)
+ConditionalsFeatures.addTranspilerFeatures(codeGenFor)
+FuncAndSelectorFeatures.addTranspilerFeatures(codeGenFor)
+ExpressionFeatures.addTranspilerFeatures(codeGenFor)
+DoScopeFeatures.addTranspilerFeatures(codeGenFor)
+MathOpFeatures.addTranspilerFeatures(codeGenFor)
 
 
 function transpile(dweeve){
 
-    let code = { text: ("dweeve = () => ( "), decs: '', lines: [], doScopes: [] };
+    let code = { text: ("dweeve = () => ( "), decs: '', lines: [], doScopes: [] }
     code.addCode = (text) => {
-        code.text += text;
-        code.lines.push(text);
-    };
+        code.text += text
+        code.lines.push(text)
+    }
 
     let context = {parentType : 'dweeve', node: dweeve, compiler: recursiveTranspile}
     recursiveTranspile(context, code)
     code.text+="\n);"
 
-    return code;
+    return code
 }
 
 function recursiveTranspile(context, code) {
-    let n = context.node;
-    if (n===undefined || n===null || n.type===undefined) return;
+    let n = context.node
+    if (n===undefined || n===null || n.type===undefined) return
     
-    let goDeep = true;
+    let goDeep = true
 
     let codeGen =codeGenFor[n.type]
     if (codeGen!==undefined) goDeep = codeGen(context, code)
@@ -45,7 +44,7 @@ function recursiveTranspile(context, code) {
     } else if (goDeep) {
         for (var key in n) {
             if (key !=='type' && n.hasOwnProperty(key)) {
-                let v = n[key];
+                let v = n[key]
                 if (Array.isArray(v)) {
                     v.forEach(an => context.compiler({parentType: n.type, node: an, compiler:context.compiler}, code))
                 } else {
@@ -55,8 +54,6 @@ function recursiveTranspile(context, code) {
         }
     }
 
-    let post =codeGenAfter[n.type]
-    if (post!==undefined) post(context, code)
-};
+}
 
-module.exports = { transpile: transpile};
+export default { transpile: transpile}
