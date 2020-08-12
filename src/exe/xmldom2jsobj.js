@@ -1,6 +1,5 @@
 function toJsObj(node){
     let nodeType = getNodeType(node)
-    console.log(nodeType)
     if (nodeType==='Document') {
         let nl = { }
         for (let idx=0;idx<node.childNodes.length;idx++){

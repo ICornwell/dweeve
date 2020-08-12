@@ -378,7 +378,9 @@ describe('Extract-Data', function() {
         dwassert.equalwows(result, exptected_result, 'output does not match example')
         done()
     })
-yarn 
+
+    it('extract from json (array), all values with .*', function(done) {
+        
         let attributes = {}
         let vars = {}
 
@@ -620,5 +622,5 @@ yarn
 
         dwassert.equalwows(result, exptected_result, 'output does not match example')
         done()
-    })
+    });
 } )
