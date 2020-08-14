@@ -13,6 +13,11 @@ import doScopeFunctions from '../functions/doScope'
 
 var lastTimings = {"parser" : 0, "transpiler": 0, "execution": 0}
 
+function runWithTimes(dwl, payload, vars, attributes) {
+    const r = run(dwl, payload, vars, attributes)
+    return { "result": r, "times": lastTimings }
+}
+
 function run(dwl, payload, vars, attributes) {
     try {
         if (typeof payload === 'string' && payload.trim().startsWith('<') && payload.trim().endsWith('>')) {
@@ -83,4 +88,4 @@ function runDweeveScript(dwl, args) {
 
 
 
-export default { run: run, lastTimings: lastTimings}
+export default { run: run, runWithTimes: runWithTimes}
