@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "yarn nearley && rm -rf ./lib && node ./node_modules/@babel/cli/bin/babel.js ./src -d lib --extensions \".js\" && cp ./src/parser/dweeve-grammar.js ./lib/parser ",
+    "build": "yarn nearley && rm -rf ./lib && node ./node_modules/@babel/cli/bin/babel.js ./src -d lib --extensions \".js\" && mkdir ./lib/parser && cp ./src/parser/dweeve-grammar.js ./lib/parser/ ",
     "test": "yarn nearley && ./node_modules/jest/bin/jest.js",
     "nearley": "./node_modules/nearley/bin/nearleyc.js ./src/parser/dweeve-grammar.ne -o ./src/parser/dweeve-grammar.js"
   },
