@@ -9,7 +9,9 @@ import {DOMParser} from 'xmldom'
 import selectorFunctions from '../functions/selectors'
 import coreFunctions from '../functions/core' 
 import coreFunctions2 from '../functions/core2' 
-import doScopeFunctions from '../functions/doScope'       
+import doScopeFunctions from '../functions/doScope'
+
+var lastTimings = {"parser" : 0, "transpiler": 0, "execution": 0}
 
 function run(dwl, payload, vars, attributes) {
     try {
@@ -53,6 +55,7 @@ function runDweeveScript(dwl, args) {
     doScopeFunctions.addFunctions(args)
     selectorFunctions.addFunctions(args)
 
+    const startPtime=Date.now()
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar))
     dwl = dwl.replace(/\r\n/g, '\n')
     dwl = strip(dwl)
@@ -63,15 +66,21 @@ function runDweeveScript(dwl, args) {
     if (parser.results.length > 1)
         throw "Dweeve parser found more than one intepretation of the dweeve!"
 
+    const startTtime=Date.now()
     const code = transpiler.transpile(parser.results[0])
     const script = new vm.Script(code.decs + '\n' + code.text + '\n var result=dweeve()')
     const context = new vm.createContext(args)
+
+    const startEtime = Date.now()
     script.runInContext(context)
+    const endEtime = Date.now()
+
     let result = context.result
+    lastTimings = {"parser" : startTtime-startPtime, "transpiler": startEtime-startTtime, "execution": endEtime-startEtime}
     return result
 }
 
 
 
 
-export default { run: run}
+export default { run: run, lastTimings: lastTimings}
