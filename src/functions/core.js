@@ -307,6 +307,15 @@ function mapObject(source, mapFunc){
     return out
 }
 
+var contentLoader = (path, contentType) => {
+    return resourceFileContent[path]
+}
+  
+function setResourceLoader(loader) {
+    contentLoader = loader
+}
+  
+
 function setResourceFileContent(name, text) {
     resourceFileContent[name]=text
 }
@@ -314,7 +323,7 @@ function setResourceFileContent(name, text) {
 var resourceFileContent = {}
 
 function readUrl(path, contentType){
-    const content = resourceFileContent[path]
+    const content = contentLoader(path, contentType)
     if (contentType==="application/json" || (content.trim().startsWith('{') && content.trim().endsWith('}')))
         return JSON.parse(content)
 
@@ -371,4 +380,6 @@ function __format(text, format) {
     return formatn(text, format)
 }
 
-export default { addFunctions: addFunctions, setResourceFileContent: setResourceFileContent}
+export default { addFunctions: addFunctions,
+     setResourceFileContent: setResourceFileContent,
+     setResourceLoader: setResourceLoader}
