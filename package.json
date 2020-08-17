@@ -2,7 +2,7 @@
   "name": "dweeve",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "./lib/exe/dweeve.js",
   "scripts": {
     "build": "yarn nearley && rm -rf ./lib && node ./node_modules/@babel/cli/bin/babel.js ./src -d lib --extensions \".js\" && mkdir ./lib/parser && cp ./src/parser/dweeve-grammar.js ./lib/parser/ ",
     "test": "yarn nearley && ./node_modules/jest/bin/jest.js",
@@ -61,15 +61,10 @@
     "presets": [
       "@babel/preset-env"
     ],
-    "ignore": [
-      "**/dweeve-grammar.js"
-    ]
+    "ignore": ["**/dweeve-grammar.js"]
   },
   "jest": {
     "verbose": true,
-    "transformIgnorePatterns": [
-      "/node_modules/",
-      "dweeve-grammar.js"
-    ]
+    "transformIgnorePatterns": ["/node_modules/", "dweeve-grammar.js"]
   }
 }
