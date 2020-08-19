@@ -61,15 +61,10 @@
     "presets": [
       "@babel/preset-env"
     ],
-    "ignore": [
-      "**/dweeve-grammar.js"
-    ]
+    "ignore": ["**/dweeve-grammar.js"]
   },
   "jest": {
     "verbose": true,
-    "transformIgnorePatterns": [
-      "/node_modules/",
-      "dweeve-grammar.js"
-    ]
+    "transformIgnorePatterns": ["/node_modules/", "dweeve-grammar.js"]
   }
 }
