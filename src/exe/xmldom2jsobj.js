@@ -62,7 +62,7 @@ function getNodeType(node){
 function hasText(node) {
     if (node.childNodes===undefined || node.childNodes===null || node.childNodes.length==0) return false
     for (let idx=0;idx<node.childNodes.length;idx++)
-        if (node.childNodes.item(idx).constructor.name==="Text"
+        if (node.childNodes.item(idx).splitText
             && !(/^\s*$/.test(node.childNodes.item(idx).textContent))) return true
 
     return false
@@ -71,7 +71,7 @@ function hasText(node) {
 function nodeOwnText(node) {
     if (node.childNodes===undefined || node.childNodes===null || node.childNodes.length==0) return ""
     for (let idx=0;idx<node.childNodes.length;idx++)
-        if (node.childNodes.item(idx).constructor.name==="Text"
+        if (node.childNodes.item(idx).splitText
             && !(/^\s*$/.test(node.childNodes.item(idx).textContent)))
              return node.childNodes.item(idx).textContent
 
@@ -80,7 +80,7 @@ function nodeOwnText(node) {
 
 function isTextOnlyElement(node){
     return (getNodeType(node)==='Element' && node.childNodes.length==1
-     && node.firstChild.constructor.name==='Text')
+     && node.firstChild.splitText)
 }
 
 
