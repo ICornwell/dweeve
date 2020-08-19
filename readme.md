@@ -22,4 +22,4 @@ There was a branch 'dweeve4browser' with some hacks and tweaks for running in th
 
 You can play with it here: http://dweeve.smallwalrus.com/
 
-The repo is here: https://github.com/ICornwell/dweeve-browser
+The repo is here: https://github.com/ICornwell/dweeve-react
