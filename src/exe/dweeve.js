@@ -22,8 +22,8 @@ function run(dwl, payload, vars, attributes) {
     try {
         if (typeof payload === 'string' && payload.trim().startsWith('<') && payload.trim().endsWith('>')) {
             var xml = payload.trim()
-            var doc = new DOMParser().parseFromString(xml)
-            payload = xml2js.toJsObj(doc)
+            var doc = new DOMParser().parseFromString(xml,'text/xml')
+            payload = xml2js.toJsObj(doc.documentElement)
         } else if (typeof payload === 'string' && payload.trim().startsWith('{') && payload.trim().endsWith('}')) {
             payload = payload.replace(/\r\n/g, '\n')
             payload = runDweeveScript(payload, {})

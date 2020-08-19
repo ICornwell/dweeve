@@ -32,7 +32,7 @@
     "moo": "^0.5.1",
     "nearley": "^2.19.0",
     "pluralize": "^8.0.0",
-    "strip-comments": "^2.0.1",
+    "strip-comments": "https://github.com/ICornwell/strip-comments",
     "xmldom": "^0.2.1"
   },
   "devDependencies": {
@@ -61,10 +61,15 @@
     "presets": [
       "@babel/preset-env"
     ],
-    "ignore": ["**/dweeve-grammar.js"]
+    "ignore": [
+      "**/dweeve-grammar.js"
+    ]
   },
   "jest": {
     "verbose": true,
-    "transformIgnorePatterns": ["/node_modules/", "dweeve-grammar.js"]
+    "transformIgnorePatterns": [
+      "/node_modules/",
+      "dweeve-grammar.js"
+    ]
   }
 }
