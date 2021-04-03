@@ -31,6 +31,7 @@ function addFunctions(context) {
     context['to'] = to
     context['sizeOf'] = sizeOf
     context['keySet'] = keySet
+    context['splitBy'] = splitBy
 }
 
 function isEven(number) {
@@ -282,6 +283,10 @@ function keySet(obj) {
     if (obj['__ukey-obj'])
         return Object.keys(obj).filter(k=>k.startsWith('__key'))
         .map(k=>Object.keys(obj[k])[0])
+}
+
+function splitBy(str, split) {
+    return (String(str)).split(split)
 }
 
 

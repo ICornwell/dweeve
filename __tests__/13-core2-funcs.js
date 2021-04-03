@@ -66,5 +66,56 @@ it('oderBy numbers, reversed', function(done) {
   done()
 })
 
+it('splitBy with single char', function(done) {
+        
+  let payload = ''
+  let attributes = {}
+  let vars = {}
+
+  let dwl = `%dw 2.0
+  var s = 'test,this,string'
+  ---
+  splitBy(s,',')`
+  let exptected_result = `["test","this","string"]`
+
+  let result = dweeve.run(dwl, payload, attributes, vars)
+  dwassert.equalwows(result, exptected_result, 'output does not splitby example')
+  done()
+})
+
+it('splitBy with multi chars', function(done) {
+        
+  let payload = ''
+  let attributes = {}
+  let vars = {}
+
+  let dwl = `%dw 2.0
+  var s = 'test-->this-->string'
+  ---
+  splitBy(s,'-->')`
+  let exptected_result = `["test","this","string"]`
+
+  let result = dweeve.run(dwl, payload, attributes, vars)
+  dwassert.equalwows(result, exptected_result, 'output does not splitby example')
+  done()
+})
+
+it('splitBy with regex', function(done) {
+        
+  let payload = ''
+  let attributes = {}
+  let vars = {}
+
+  let dwl = `%dw 2.0
+  var s = 'test-->this++>string--<notthis'
+  ---
+  splitBy(s,/[\-+]*>/)`
+  let exptected_result = `["test","this","string--<notthis"]`
+
+  let result = dweeve.run(dwl, payload, attributes, vars)
+  dwassert.equalwows(result, exptected_result, 'output does not splitby example')
+  done()
+})
+
 }
 )
