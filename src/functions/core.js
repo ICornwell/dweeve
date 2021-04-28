@@ -1,4 +1,5 @@
 import formatn from 'format-number-with-string'
+import {add, addDays, addMonths, addYears} from 'date-fns/'
 
 function addFunctions(context) {
     context['isOdd'] = isOdd
@@ -7,6 +8,10 @@ function addFunctions(context) {
     context['avg'] = avg
     context['ceil'] = ceil
     context['contains'] = contains
+    context['dateAdd'] = dateAdd
+    context['dateAddDays'] = dateAddDays
+    context['dateAddMonths'] = dateAddMonths
+    context['dateAddYears'] = dateAddYears
     context['daysBetween'] = daysBetween
     context['distinctBy'] = distinctBy
     context['distinctByKeys'] = distinctByKeys
@@ -60,9 +65,60 @@ function contains(arr, item) {
     return arr.includes(item)
 }
 
+function dateAdd(d1, additive){
+    try {
+        let date1 = (typeof d1 === 'string') ? Date.parse(d1) : d1
+                
+        let newDate= add(date1, additive)
+        return newDate
+    }
+    catch (err) {
+        throw "Could not process dates for daysBetween:"+ err.message
+    }
+}
+
+function dateAddDays(d1, days){
+    try {
+        let date1 = (typeof d1 === 'string') ? Date.parse(d1) : d1
+                
+        let newDate= addDays(date1, days)
+        return newDate
+    }
+    catch (err) {
+        throw "Could not process dates for daysBetween:"+ err.message
+    }
+}
+
+function dateAddMonths(d1, months){
+    try {
+        let date1 = (typeof d1 === 'string') ? Date.parse(d1) : d1
+                
+        let newDate= addMonths(date1, months)
+        return newDate
+    }
+    catch (err) {
+        throw "Could not process dates for daysBetween:"+ err.message
+    }
+}
+
+function dateAddYears(d1, years){
+    try {
+        let date1 = (typeof d1 === 'string') ? Date.parse(d1) : d1
+                
+        let newDate= addYears(date1, years )
+        return newDate
+    }
+    catch (err) {
+        throw "Could not process dates for daysBetween:"+ err.message
+    }
+}
+
 function daysBetween(d1, d2){
     try {
-        let time = Date.parse(d2) - Date.parse(d1)
+        let date1 = (typeof d1 === 'string') ? Date.parse(d1) : (d1 instanceof Date) ? d1.getTime() : d1
+        let date2 = (typeof d2 === 'string') ? Date.parse(d2) : (d2 instanceof Date) ? d2.getTime() : d2
+        
+        let time = date2 - date1
         return time / (1000 * 60 * 60 * 24)
     }
     catch (err) {

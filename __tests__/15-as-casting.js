@@ -23,6 +23,93 @@ describe('test "as" operators', function() {
     done()
 })
 
+
+  it('string to number', function(done) {
+       let dwl = `
+    var payload = '45'
+    ---
+    payload as Number
+    `
+
+    let exptected_result = `45`
+
+    let result = dweeve.run(dwl, '', {}, {})
+    dwassert.equalwows(result, exptected_result, 'output does not match example')
+    done()
+})
+
+it('string to bool', function(done) {
+  let dwl = `
+var payload = 'True'
+---
+payload as Boolean
+`
+
+let exptected_result = `true`
+
+let result = dweeve.run(dwl, '', {}, {})
+dwassert.equalwows(result, exptected_result, 'output does not match example')
+done()
+})
+
+it('string to date', function(done) {
+  let dwl = `
+var payload = '2021-04-13'
+---
+payload as Date
+`
+
+let exptected_result = `"2021-04-13T00:00:00.000Z"`
+
+let result = dweeve.run(dwl, '', {}, {})
+dwassert.equalwows(result, exptected_result, 'output does not match example')
+done()
+})
+
+it('string to string via dateAdd', function(done) {
+  let dwl = `
+var payload = '2021-04-13'
+---
+dateAdd(payload as Date , {days: 7}) as String
+`
+
+let exptected_result = `"TueApr20202101:00:00GMT+0100(BritishSummerTime)"`
+
+let result = dweeve.run(dwl, '', {}, {})
+dwassert.equalwows(result, exptected_result, 'output does not match example')
+done()
+})
+
+it('string to date via dateAdd', function(done) {
+  let dwl = `
+var payload = '2021-04-13'
+---
+dateAdd(payload as Date , {days: 7})
+`
+
+let exptected_result = `"2021-04-20T00:00:00.000Z"`
+
+let result = dweeve.run(dwl, '', {}, {})
+dwassert.equalwows(result, exptected_result, 'output does not match example')
+done()
+})
+
+it('string to date to number', function(done) {
+  let dwl = `
+var payload = '2021-04-13'
+---
+payload as Date as Number
+`
+
+let exptected_result = `1618272000000`
+
+let result = dweeve.run(dwl, '', {}, {})
+dwassert.equalwows(result, exptected_result, 'output does not match example')
+done()
+})
+
+
+
 it('simple number to formatted string', function(done) {
         
   let payload = ''

@@ -83,8 +83,26 @@ codeGenFor['as'] = (context, code) => {
             context.compiler({parentType: 'as', node: context.node.lhs, compiler:context.compiler}, code)
             code.addCode(')')
         }
-        code.addCode(')') 
+        
+    } else if (context.node.rhs === 'Number') {
+            code.addCode('Number(')
+            context.compiler({parentType: 'as', node: context.node.lhs, compiler:context.compiler}, code)
+            code.addCode(')')
+    } else if (context.node.rhs === 'Boolean') {
+        code.addCode('Boolean(')
+        context.compiler({parentType: 'as', node: context.node.lhs, compiler:context.compiler}, code)
+        code.addCode(')')
+    }  else if (context.node.rhs === 'Date' || context.node.rhs === 'DateTime') {
+        code.addCode('new Date(Date.parse(')
+        context.compiler({parentType: 'as', node: context.node.lhs, compiler:context.compiler}, code)
+        code.addCode('))')
     }
+    else {
+        context.compiler({parentType: 'as', node: context.node.lhs, compiler:context.compiler}, code)
+    }
+
+    code.addCode(')') 
+
     return false; 
 }
 

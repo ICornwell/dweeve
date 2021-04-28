@@ -27,7 +27,6 @@ describe('Hyphen Names', function() {
         let result = dweeve.run(dwl, payload, attributes, vars)
 
         dwassert.equalwows(result, '{ "name": "bind" }', 'output does not match example')
-    //    assert.equal(result.replace(/\s/g,''), exptected_result.replace(/\s/g,''), 'output does not match example')
         done()
     })
 })
