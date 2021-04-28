@@ -183,7 +183,7 @@ function mod(dividend, divisor) {
 }
 
 function now() {
-    return newDate(Date.now())
+    return new Date(Date.now())
 }
 
 function joinBy(arr,s) {
