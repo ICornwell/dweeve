@@ -154,16 +154,18 @@ function str(key, holder, limit) {
                 for (k in value) {
                     if ( k.startsWith('__key')) {
                         let v2 = value[k]
-                        let k2 = Object.keys(v2)[0]
+                        if (v2) {
+                            let k2 = Object.keys(v2)[0]
 
-                        if (Object.prototype.hasOwnProperty.call(v2, k2)) {
-                            v = str(k2, v2, limit)
-                            if (v) {
-                                partial.push(quote(k2) + (
-                                    gap
-                                        ? ': '
-                                        : ':'
-                                ) + v)
+                            if (Object.prototype.hasOwnProperty.call(v2, k2)) {
+                                v = str(k2, v2, limit)
+                                if (v) {
+                                    partial.push(quote(k2) + (
+                                        gap
+                                            ? ': '
+                                            : ':'
+                                    ) + v)
+                                }
                             }
                         }
                     }

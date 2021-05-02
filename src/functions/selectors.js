@@ -132,7 +132,10 @@ function __flattenDynamicContent(obj) {
                         // when flattening recursive dynamic content unbundle the ukey-objs 
                         // before re-bundling
                         Object.keys(m).filter(fk=>fk.startsWith('__key'))
-                            .forEach(ik=> newObj['__key'+idx++]=m[ik] )
+                            .forEach(ik=> {
+                                if (m[il])
+                                 newObj['__key'+idx++]=m[ik]
+                             } )
                     } else
                         newObj['__key'+idx++]=m
                 })
@@ -140,7 +143,8 @@ function __flattenDynamicContent(obj) {
                 if (obj[k]!=null && obj[k]!=undefined) {
                     Object.keys(obj[k]).forEach(dk =>{
                         if (dk.startsWith('__key')) {
-                            newObj['__key'+idx++]=obj[k][dk]
+                            if (obj[k][dk]) // ignore undefined entries left from conditional members
+                                newObj['__key'+idx++]=obj[k][dk]
                         } else if (dk!=='__ukey-obj') {
                             newObj['__key'+idx++]={ [dk]: obj[k][dk] }
                         }
