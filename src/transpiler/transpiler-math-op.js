@@ -14,6 +14,7 @@ opfuncs['or'] = orLogic
 opfuncs['!'] = notLogic
 opfuncs['not'] = notLogic
 opfuncs['is'] = isLogic
+opfuncs['-'] = minusrLogic
 
 codeGenFor['dot-op'] = (context, code) => { functionHandler(context, code) }
 codeGenFor['product'] = (context, code) => { functionHandler(context, code) }
@@ -77,6 +78,14 @@ function orLogic(lhs, op, rhs, context,code) {
     emitOperand(lhs, context, code)
     code.addCode('||')
     emitOperand(rhs, context, code)
+}
+
+function minusrLogic(lhs, op, rhs, context,code) {
+    code.addCode('__minus(')
+    emitOperand(lhs, context, code)
+    code.addCode(',')
+    emitOperand(rhs, context, code)
+    code.addCode(')')
 }
 
 function isLogic(lhs, op, rhs, context,code) {

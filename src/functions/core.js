@@ -27,6 +27,7 @@ function addFunctions(context) {
     context['mapObject'] = mapObject
     context['readUrl'] = readUrl
     context['__add'] = __add
+    context['__minus'] = __minus
     context['__indexed'] = __indexed
     context['__format'] = __format
 }
@@ -412,6 +413,23 @@ function __add(lhs, rhs) {
     } else {
         return lhs + rhs
     }
+}
+
+function __minus(lhs, rhs) {
+    if (typeof lhs === 'object' && typeof rhs === 'string'){
+        const result = {...lhs}
+        if (!lhs["__ukey-obj"] && result[rhs]) // lhs is just a plain obj
+            delete result[rhs]
+        else if(lhs["__ukey-obj"]) { // tru to find the key in the wrapped obj
+            const wrapperKey = Object.keys(lhs).find(k =>
+                Object.keys(lhs[k])[0] === rhs)
+            if (wrapperKey)
+                delete result[wrapperKey]
+        }
+        return result
+    }
+    else
+        return lhs - rhs
 }
 
 function __indexed(obj, indexer){
