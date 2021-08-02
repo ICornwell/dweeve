@@ -151,5 +151,86 @@ payload.flights map (flight) -> {
   done()
 })
 
+it('map - multiple use of key maps', function(done) {
+  let attributes = {}
+  let vars = {}
+  let payload = `
+  {
+    "flights":[
+    {
+    "availableSeats":45,
+    "airlineName":"Ryan Air",
+    "aircraftBrand":"Boeing",
+    "aircraftType":"737",
+    "departureDate":"12/14/2017",
+    "origin":"BCN",
+    "destination":"FCO"
+    },
+    {
+    "availableSeats":15,
+    "airlineName":"Ryan Air",
+    "aircraftBrand":"Boeing",
+    "aircraftType":"747",
+    "departureDate":"08/03/2017",
+    "origin":"FCO",
+    "destination":"DFW"
+    }]
+  }
+  `
+  let dwl = `
+  %dw 2.0
+output application/json
+---
+payload.flights map (flight) -> {
+    (flight mapObject (value, key) -> {
+        (key+'__extra'): value,
+        (key+'__other'): value
+    })
+}
+   `
+
+  let exptected_result = `
+  [
+    {
+      "availableSeats__extra":45,
+      "availableSeats__other":45,
+      "airlineName__extra": "Ryan Air",
+      "airlineName__other": "Ryan Air",
+      "aircraftBrand__extra": "Boeing",
+      "aircraftBrand__other": "Boeing",
+      "aircraftType__extra": "737",
+      "aircraftType__other": "737",
+      "departureDate__extra": "12/14/2017",
+      "departureDate__other": "12/14/2017",
+      "origin__extra": "BCN",
+      "origin__other": "BCN",
+      "destination__extra": "FCO",
+      "destination__other": "FCO"
+    },
+    {
+      "availableSeats__extra":15,
+      "availableSeats__other":15,
+      "airlineName__extra": "Ryan Air",
+      "airlineName__other": "Ryan Air",
+      "aircraftBrand__extra": "Boeing",
+      "aircraftBrand__other": "Boeing",
+      "aircraftType__extra": "747",
+      "aircraftType__other": "747",
+      "departureDate__extra": "08/03/2017",
+      "departureDate__other": "08/03/2017",
+      "origin__extra": "FCO",
+      "origin__other": "FCO",
+      "destination__extra": "DFW",
+      "destination__other": "DFW"
+    }
+  ]
+  `
+
+  let result = dweeve.run(dwl, payload, attributes, vars)
+
+  dwassert.equalwows(result, exptected_result, 'output does not match example')
+  done()
+})
+
 }
 )

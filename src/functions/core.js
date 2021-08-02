@@ -354,14 +354,22 @@ function mapObject(source, mapFunc){
             k = isNaN(parseInt(k)) ? k : parseInt(k)
             let mr = (mapFunc(v, k, idx))
             if (mr['__ukey-obj'])
-                out['__key'+idx]=mr['__key0']
+                idx = reIndexElements(idx, mr, out)
             else
-                out['__key'+idx]=mr
-            idx++
+                out['__key' + idx++]=mr
+            
         }
     }
 
     return out
+
+    function reIndexElements(idx, mr, out) {
+        let oldIdx = 0
+        while (Object.keys(mr).includes('__key'+oldIdx))
+            out['__key'+ idx++] = mr['__key' + oldIdx++]
+
+        return idx
+    }
 }
 
 var contentLoader = (path, contentType) => {
